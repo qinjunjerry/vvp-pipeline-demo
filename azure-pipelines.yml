@@ -129,7 +129,7 @@ stages:
                     kind: JAR
                     jarUri: >-
                       wasbs://$(vvpPipelineDemoBlobContainer)@$(vvpPipelineDemoStorage).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(vvpJobJar)
-                    flinkVersion: '1.9'
+                    flinkVersion: 1.9
                     flinkImageRegistry: registry.platform.data-artisans.net/v2.0
                     flinkImageRepository: flink
                     flinkImageTag: 1.9.1-stream1-scala_2.12
