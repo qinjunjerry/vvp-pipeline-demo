@@ -15,6 +15,14 @@ variables:
   # Ververica Platform related settings
   vvpNamespace: 'default'
   vvpDeploymentTarget: ''
+  servicePrincipal: 'http://vvp-pipeline-demo-service-principal'
+  tenantId: '2925ee25-3bd0-402a-88f1-69307e6a39f3'
+  keyVault: 'vvp-pipeline-keyvault'
+  servicePrincipalSecretName: 'vvp-pipeline-demo-service-principal-password'
+  vvpResourceGroup: 'vvp-pipeline-demo'
+  vvpClusterName: 'vvp-pipeline-cluster'
+  vvpKubernetesNamespace: 'vvp'
+
 
 stages:
 
@@ -73,4 +81,32 @@ stages:
           storage: vvppipelinestorage
           containerName: vvp-pipeline-artifacts
           BlobPrefix: 'artifacts/namespaces/$(vvpNamespace)'
-          
+
+- stage: Submit
+  displayName: Submit stage
+  jobs:
+    - job: SubmitFlinkJob
+      displayName: Submit flink job
+      steps:
+        - task: KubectlInstaller@0
+          displayName: Install kubectl
+          inputs: 
+            kubectlVersion: 1.15.0
+
+        - task: AzureKeyVault@1
+          inputs:
+            azureSubscription: '$(azureSubscription)'
+            KeyVaultName: '$(keyVault)'
+            SecretsFilter: '$(servicePrincipalSecretName)'
+
+        - script: az login --service-principal -u $(servicePrincipal) -p $(servicePrincipalSecretName)  --tenant $(tenantId)
+        - script: az aks get-credentials --resource-group $(vvpResourceGroup) --name $(vvpCluster)
+        - script: kubectl port-forward service/vvp-ververica-platform 8080:80 --namespace $(vvpKubernetesNamespace) &
+        # - script: |
+        #     curl -X PATCH "http://localhost:8080/api/v1/namespaces/default/deployments/4ebe37b7-79af-40a2-a0d5-05976f062e52" -H "accept: application/yaml" -H "Content-Type: application/yaml" -d '
+        #     ---
+        #     kind: Deployment
+        #     apiVersion: v1
+        #     spec:
+        #       state: CANCELLED
+        #     '
