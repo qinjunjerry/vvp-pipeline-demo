@@ -18,7 +18,6 @@ variables:
   servicePrincipal: 'http://vvp-pipeline-demo-service-principal'
   tenantId: '2925ee25-3bd0-402a-88f1-69307e6a39f3'
   keyVault: 'vvp-pipeline-keyvault'
-  servicePrincipalSecretName: 'vvp-pipeline-demo-service-principal-password'
   vvpResourceGroup: 'vvp-pipeline-demo'
   vvpClusterName: 'vvp-pipeline-cluster'
   vvpKubernetesNamespace: 'vvp'
@@ -97,9 +96,9 @@ stages:
           inputs:
             azureSubscription: '$(azureSubscription)'
             KeyVaultName: '$(keyVault)'
-            SecretsFilter: '$(servicePrincipalSecretName)'
+            SecretsFilter: 'vvp-pipeline-demo-service-principal-password'
 
-        - script: az login --service-principal -u $(servicePrincipal) -p $(servicePrincipalSecretName)  --tenant $(tenantId)
+        - script: az login --service-principal -u $(servicePrincipal) -p $(vvp-pipeline-demo-service-principal-password)  --tenant $(tenantId)
         - script: az aks get-credentials --resource-group $(vvpResourceGroup) --name $(vvpCluster)
         - script: kubectl port-forward service/vvp-ververica-platform 8080:80 --namespace $(vvpKubernetesNamespace) &
         # - script: |
