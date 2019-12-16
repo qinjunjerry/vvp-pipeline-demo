@@ -34,8 +34,7 @@ stages:
       displayName: Stage job jar
       inputs:
         SourceFolder: 'target'
-        # pattern to identify the job jar, e.g., flink-*.jar
-        Contents: wiki-*.jar'
+        Contents: 'wiki-*.jar'
         TargetFolder: '$(build.artifactstagingdirectory)'
 
     - task: PublishPipelineArtifact@1
