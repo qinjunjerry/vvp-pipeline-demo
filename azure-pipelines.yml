@@ -6,11 +6,15 @@ variables:
   # Azure Resource Manager service connection 
   azureSubscription: 'vvp-pipeline-service-connection'
 
-  # Agent VM image name
+  # Agent VM image name: Windows is needed by AzureFileCopy@3
   vmImageName: 'windows-latest'
 
   # DEBUG
   system.debug: true
+
+  # Ververica Platform related settings
+  vvpNamespace: 'default'
+  vvpDeploymentTarget: ''
 
 stages:
 
@@ -19,14 +23,14 @@ stages:
   displayName: Build stage
   jobs:
   - job: PackageAndPublish
-    displayName: Maven Package and Publish Artifacts
+    displayName: Package and Publish
 
     pool:
       vmImage: $(vmImageName)
 
     steps:
     - task: Maven@3
-      displayName: Maven Package
+      displayName: Maven package
       inputs:
         mavenPomFile: 'pom.xml'
 
@@ -49,8 +53,8 @@ stages:
   dependsOn: Build
   condition: succeeded()
   jobs:
-    - job: DownloadDeploy
-      displayName: Download and Deploy
+    - job: DownloadAndDeploy
+      displayName: Download and deploy
       pool:
         vmImage: $(vmImageName)
       steps:
@@ -61,11 +65,12 @@ stages:
           downloadPath: '$(build.artifactstagingdirectory)' 
 
       - task: AzureFileCopy@3
+        displayName: Deploy to blob storage
         inputs:
           sourcePath: '$(build.artifactstagingdirectory)' 
           azureSubscription: '$(azureSubscription)'
           destination: azureBlob
           storage: vvppipelinestorage
           containerName: vvp-pipeline-artifacts
-          BlobPrefix: 'artifacts/namespaces/default'
+          BlobPrefix: 'artifacts/namespaces/$(vvpNamespace)'
           
