@@ -1,0 +1,72 @@
+trigger:
+- master
+
+variables:
+
+  # Azure Resource Manager service connection 
+  azureSubscription: 'vvp-pipeline-service-connection'
+
+  # Agent VM image name
+  vmImageName: 'windows-latest'
+
+  # DEBUG
+  system.debug: true
+
+stages:
+
+### Build stage
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: PackageAndPublish
+    displayName: Maven Package and Publish Artifacts
+
+    pool:
+      vmImage: $(vmImageName)
+
+    steps:
+    - task: Maven@3
+      displayName: Maven Package
+      inputs:
+        mavenPomFile: 'pom.xml'
+
+    - task: CopyFiles@2
+      displayName: Stage job jar
+      inputs:
+        SourceFolder: 'target'
+        # pattern to identify the job jar, e.g., flink-*.jar
+        Contents: wiki-*.jar'
+        TargetFolder: '$(build.artifactstagingdirectory)'
+
+    - task: PublishPipelineArtifact@1
+      displayName: Publish artifacts
+      inputs:
+        targetPath: '$(build.artifactstagingdirectory)'
+        artifactName: JobJar
+
+### Deploy stage
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+    - job: DownloadDeploy
+      displayName: Download and Deploy
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - task: DownloadPipelineArtifact@2
+        displayName: Download artifacts
+        inputs:
+          artifact: 'JobJar'
+          downloadPath: '$(build.artifactstagingdirectory)' 
+
+      - task: AzureFileCopy@3
+        inputs:
+          sourcePath: '$(build.artifactstagingdirectory)' 
+          azureSubscription: '$(azureSubscription)'
+          destination: azureBlob
+          storage: vvppipelinestorage
+          containerName: artifacts
+          BlobPrefix: 'artifacts/namespaces/default'
+          
