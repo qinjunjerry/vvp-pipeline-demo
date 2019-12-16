@@ -99,7 +99,7 @@ stages:
             SecretsFilter: 'vvp-pipeline-demo-service-principal-password'
 
         - script: az login --service-principal -u $(servicePrincipal) -p $(vvp-pipeline-demo-service-principal-password)  --tenant $(tenantId)
-        - script: az aks get-credentials --resource-group $(vvpResourceGroup) --name $(vvpCluster)
+        - script: az aks get-credentials --resource-group $(vvpResourceGroup) --name $(vvpClusterName)
         - script: kubectl port-forward service/vvp-ververica-platform 8080:80 --namespace $(vvpKubernetesNamespace) &
         - script: |
             curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployment-targets" -H "accept: application/json"
