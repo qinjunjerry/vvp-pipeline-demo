@@ -14,13 +14,16 @@ variables:
 
   # Ververica Platform related settings
   vvpNamespace: 'default'
-  vvpDeploymentTarget: ''
+  vvpDeploymentTarget: '6ebbe4f9-0377-462a-9112-81a2ef4ea0b5'
   servicePrincipal: 'http://vvp-pipeline-demo-service-principal'
   tenantId: '2925ee25-3bd0-402a-88f1-69307e6a39f3'
   keyVault: 'vvp-pipeline-keyvault'
   vvpResourceGroup: 'vvp-pipeline-demo'
   vvpClusterName: 'vvp-pipeline-cluster'
   vvpKubernetesNamespace: 'vvp'
+  vppJobJar: 'wiki-edits-0.1.jar'
+  vvpPipelineDemoStorage: 'vvppipelinestorage'
+  vvpPipelineDemoBlobContainer: 'vvp-pipeline-artifacts'
 
 
 stages:
@@ -30,7 +33,7 @@ stages:
   displayName: Build stage
   jobs:
   - job: PackageAndPublish
-    displayName: Package and Publish
+    displayName: Package and publish
 
     pool:
       vmImage: $(vmImageName)
@@ -45,7 +48,7 @@ stages:
       displayName: Stage job jar
       inputs:
         SourceFolder: 'target'
-        Contents: 'wiki-*.jar'
+        Contents: '$(vvpJobJar)'
         TargetFolder: '$(build.artifactstagingdirectory)'
 
     - task: PublishPipelineArtifact@1
@@ -103,11 +106,44 @@ stages:
         - script: kubectl port-forward service/vvp-ververica-platform 8080:80 --namespace $(vvpKubernetesNamespace) &
         - script: |
             curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployment-targets" -H "accept: application/json"
-        # - script: |
-        #     curl -X PATCH "http://localhost:8080/api/v1/namespaces/default/deployments/4ebe37b7-79af-40a2-a0d5-05976f062e52" -H "accept: application/yaml" -H "Content-Type: application/yaml" -d '
-        #     ---
-        #     kind: Deployment
-        #     apiVersion: v1
-        #     spec:
-        #       state: CANCELLED
-        #     '
+        - script: |
+            curl -X POST "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/yaml" -H "Content-Type: application/yaml" -d "
+            kind: Deployment
+            apiVersion: v1
+            metadata:
+              name: vvp-pipeline-demo-deployment
+              namespace: default
+            spec:
+              state: RUNNING
+              upgradeStrategy:
+                kind: STATELESS
+              restoreStrategy:
+                kind: LATEST_SAVEPOINT
+                allowNonRestoredState: false
+              deploymentTargetId: $(vvpDeploymentTarget)
+              template:
+                metadata:
+                  annotations: {}
+                spec:
+                  artifact:
+                    kind: JAR
+                    jarUri: >-
+                      wasbs://$(vvpPipelineDemoBlobContainer)@$(vvpPipelineDemoStorage).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(vvpJobJar)
+                    flinkVersion: '1.9'
+                    flinkImageRegistry: registry.platform.data-artisans.net/v2.0
+                    flinkImageRepository: flink
+                    flinkImageTag: 1.9.1-stream1-scala_2.12
+                  parallelism: 1
+                  resources:
+                    jobmanager:
+                      cpu: 1
+                      memory: 1G
+                    taskmanager:
+                      cpu: 1
+                      memory: 2G
+                  flinkConfiguration: {}
+                  logging:
+                    log4jLoggers: {}
+            status:
+              state: CANCELLED
+            "
