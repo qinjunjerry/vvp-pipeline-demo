@@ -101,6 +101,8 @@ stages:
         - script: az login --service-principal -u $(servicePrincipal) -p $(vvp-pipeline-demo-service-principal-password)  --tenant $(tenantId)
         - script: az aks get-credentials --resource-group $(vvpResourceGroup) --name $(vvpCluster)
         - script: kubectl port-forward service/vvp-ververica-platform 8080:80 --namespace $(vvpKubernetesNamespace) &
+        - script: |
+            curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployment-targets" -H "accept: application/json"
         # - script: |
         #     curl -X PATCH "http://localhost:8080/api/v1/namespaces/default/deployments/4ebe37b7-79af-40a2-a0d5-05976f062e52" -H "accept: application/yaml" -H "Content-Type: application/yaml" -d '
         #     ---
