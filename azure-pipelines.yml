@@ -66,6 +66,6 @@ stages:
           azureSubscription: '$(azureSubscription)'
           destination: azureBlob
           storage: vvppipelinestorage
-          containerName: artifacts
+          containerName: vvp-pipeline-artifacts
           BlobPrefix: 'artifacts/namespaces/default'
           
