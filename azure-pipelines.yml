@@ -111,7 +111,7 @@ stages:
         - bash: |
             echo my pipeline variable is $(sauce)
         - script: |
-            found=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/json" -s | python -c 'import sys, json; j=json.loads(sys.stdin.read()); print vvp-pipeline-demo-deployment in [ i["metadata"]["name"] for i in j["items"] ]'`
+            found=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/json" -s | python -c 'import sys, json; j=json.loads(sys.stdin.read()); print "$(vvpDeploymentName)" in [ i["metadata"]["name"] for i in j["items"] ]'`
             echo "##vso[task.setvariable variable=exists]$found"
         - script: |
             echo $(exists)
