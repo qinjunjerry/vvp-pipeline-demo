@@ -106,12 +106,13 @@ stages:
         - script: az aks get-credentials --resource-group $(vvpResourceGroup) --name $(vvpClusterName)
         - script: kubectl port-forward service/vvp-ververica-platform 8080:80 --namespace $(vvpKubernetesNamespace) &
         - bash: |
-            echo "##vso[task.setvariable variable=sauce]crushed tomatoes"
+            abc=True
+            echo "##vso[task.setvariable variable=sauce]$(abc)"
         - bash: |
             echo my pipeline variable is $(sauce)
         - script: |
-            exists=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/json" -s | python -c 'import sys, json; j=json.loads(sys.stdin.read()); print $(vvpDeploymentName) in [ i["metadata"]["name"] for i in j["items"] ]'`
-            echo "##vso[task.setvariable variable=exists]$exists"
+            found=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/json" -s | python -c 'import sys, json; j=json.loads(sys.stdin.read()); print vvp-pipeline-demo-deployment in [ i["metadata"]["name"] for i in j["items"] ]'`
+            echo "##vso[task.setvariable variable=exists]$found"
         - script: |
             echo $(exists)
         # - script: |
