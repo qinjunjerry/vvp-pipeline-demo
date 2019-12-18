@@ -109,10 +109,10 @@ stages:
             found=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/json" -s | python -c 'import sys, json; j=json.loads(sys.stdin.read()); print "$(vvpDeploymentName)" in [ i["metadata"]["name"] for i in j["items"] ]'`
             echo "##vso[task.setvariable variable=exists]$found"
         - script: |
-            echo "Found Deployment"
+            echo "Found Deployment: found=$found"
           condition: eq(variables['exists'], 'True')
         - script: |
-            echo "Deployment not found"
+            echo "Deployment not found: found=$found"
           condition: ne(variables['exists'], 'True')
         # - script: |
         #     curl -X POST "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/yaml" -H "Content-Type: application/yaml" -d "
