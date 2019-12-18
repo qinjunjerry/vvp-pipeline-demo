@@ -109,51 +109,50 @@ stages:
             found=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/json" -s | python -c 'import sys, json; j=json.loads(sys.stdin.read()); print "$(vvpDeploymentName)" in [ i["metadata"]["name"] for i in j["items"] ]'`
             echo "##vso[task.setvariable variable=exists]$found"
         - script: |
-            echo "Found Deployment: found=$(found)"
+            echo "PATCH Deployment"
           condition: eq(variables['exists'], 'True')
+          displayName: PATCH Deployment
         - script: |
-            echo "Deployment not found: found=$found"
+            curl -X POST "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/yaml" -H "Content-Type: application/yaml" -d "
+            kind: Deployment
+            apiVersion: v1
+            metadata:
+              name: vvp-pipeline-demo-deployment
+              namespace: default
+            spec:
+              state: RUNNING
+              upgradeStrategy:
+                kind: STATELESS
+              restoreStrategy:
+                kind: LATEST_SAVEPOINT
+                allowNonRestoredState: false
+              deploymentTargetId: $(vvpDeploymentTarget)
+              template:
+                metadata:
+                  annotations: {}
+                spec:
+                  artifact:
+                    kind: JAR
+                    jarUri: >-
+                      wasbs://$(vvpPipelineDemoBlobContainer)@$(vvpPipelineDemoStorage).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(vvpJobJar)
+                    flinkVersion: 1.9
+                    flinkImageRegistry: registry.platform.data-artisans.net/v2.0
+                    flinkImageRepository: flink
+                    flinkImageTag: 1.9.1-stream1-scala_2.12
+                  parallelism: 1
+                  resources:
+                    jobmanager:
+                      cpu: 1
+                      memory: 1G
+                    taskmanager:
+                      cpu: 1
+                      memory: 2G
+                  flinkConfiguration: {}
+                  logging:
+                    log4jLoggers: {}
+            status:
+              state: CANCELLED
+            "
           condition: ne(variables['exists'], 'True')
-        # - script: |
-        #     curl -X POST "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/yaml" -H "Content-Type: application/yaml" -d "
-        #     kind: Deployment
-        #     apiVersion: v1
-        #     metadata:
-        #       name: vvp-pipeline-demo-deployment
-        #       namespace: default
-        #     spec:
-        #       state: RUNNING
-        #       upgradeStrategy:
-        #         kind: STATELESS
-        #       restoreStrategy:
-        #         kind: LATEST_SAVEPOINT
-        #         allowNonRestoredState: false
-        #       deploymentTargetId: $(vvpDeploymentTarget)
-        #       template:
-        #         metadata:
-        #           annotations: {}
-        #         spec:
-        #           artifact:
-        #             kind: JAR
-        #             jarUri: >-
-        #               wasbs://$(vvpPipelineDemoBlobContainer)@$(vvpPipelineDemoStorage).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(vvpJobJar)
-        #             flinkVersion: 1.9
-        #             flinkImageRegistry: registry.platform.data-artisans.net/v2.0
-        #             flinkImageRepository: flink
-        #             flinkImageTag: 1.9.1-stream1-scala_2.12
-        #           parallelism: 1
-        #           resources:
-        #             jobmanager:
-        #               cpu: 1
-        #               memory: 1G
-        #             taskmanager:
-        #               cpu: 1
-        #               memory: 2G
-        #           flinkConfiguration: {}
-        #           logging:
-        #             log4jLoggers: {}
-        #     status:
-        #       state: CANCELLED
-        #     "
-        #   name: postDeployment
-        #   displayName: POST deployment
+          displayName: POST Deployment
+
