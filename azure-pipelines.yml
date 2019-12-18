@@ -97,21 +97,26 @@ stages:
             kubectlVersion: 1.15.0
 
         - task: AzureKeyVault@1
+          displayName: Get password
           inputs:
             azureSubscription: '$(azureSubscription)'
             KeyVaultName: '$(keyVault)'
             SecretsFilter: 'vvp-pipeline-demo-service-principal-password'
 
         - script: az login --service-principal -u $(servicePrincipal) -p $(vvp-pipeline-demo-service-principal-password)  --tenant $(tenantId)
+          displayName: az login
         - script: az aks get-credentials --resource-group $(vvpResourceGroup) --name $(vvpClusterName)
+          displayName: Get cluster credential
         - script: kubectl port-forward service/vvp-ververica-platform 8080:80 --namespace $(vvpKubernetesNamespace) &
+          displayName: Port forward
         - script: |
             found=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/json" -s | python -c 'import sys, json; j=json.loads(sys.stdin.read()); print "$(vvpDeploymentName)" in [ i["metadata"]["name"] for i in j["items"] ]'`
             echo "##vso[task.setvariable variable=exists]$found"
+          displayName: Check deployment
         - script: |
             echo "PATCH Deployment"
           condition: eq(variables['exists'], 'True')
-          displayName: PATCH Deployment
+          displayName: PATCH deployment
         - script: |
             curl -X POST "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/yaml" -H "Content-Type: application/yaml" -d "
             kind: Deployment
@@ -154,5 +159,5 @@ stages:
               state: CANCELLED
             "
           condition: ne(variables['exists'], 'True')
-          displayName: POST Deployment
+          displayName: POST deployment
 
