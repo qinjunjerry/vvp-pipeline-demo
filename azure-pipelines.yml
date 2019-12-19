@@ -249,3 +249,20 @@ stages:
           condition: eq(variables['deploymentId'], '')
           displayName: POST deployment
 
+        - task: Delay@1
+          inputs:
+            delayForMinutes: '3'
+
+        - script: |
+            state=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" \
+            -H "accept: application/json" -s \
+            | python -c '
+            import sys, json
+            j=json.loads(sys.stdin.read())
+            for i in j["items"]:
+                  if i["metadata"]["name"] == "$(vvpJobJarPrefix)-deployment":
+                          print i["status"]["state"]
+            '`
+            if [ $state -ne "RUNNING" ]; then
+                exit 1
+            fi
