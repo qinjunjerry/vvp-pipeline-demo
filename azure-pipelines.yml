@@ -13,14 +13,15 @@ variables:
   system.debug: true
 
   # Ververica Platform related settings
+  vvpResourceGroup: 'vvp-pipeline-demo'
+  vvpClusterName: 'vvp-pipeline-cluster'
+  vvpKubernetesNamespace: 'vvp'
+
   vvpNamespace: 'default'
   vvpDeploymentTarget: '6ebbe4f9-0377-462a-9112-81a2ef4ea0b5'
   servicePrincipal: 'http://vvp-pipeline-demo-service-principal'
   tenantId: '2925ee25-3bd0-402a-88f1-69307e6a39f3'
   keyVault: 'vvp-pipeline-keyvault'
-  vvpResourceGroup: 'vvp-pipeline-demo'
-  vvpClusterName: 'vvp-pipeline-cluster'
-  vvpKubernetesNamespace: 'vvp'
   vvpJobJarPrefix: 'wiki-edits'
   vvpPipelineDemoStorage: 'vvppipelinestorage'
   vvpPipelineDemoBlobContainer: 'vvp-pipeline-artifacts'
@@ -51,12 +52,12 @@ stages:
       inputs:
         SourceFolder: 'target'
         Contents: '$(vvpJobJarPrefix)-*.jar'
-        TargetFolder: '$(build.artifactstagingdirectory)'
+        TargetFolder: '$(build.artifactstagingdirectory)/artifacts'
 
     - task: PublishPipelineArtifact@1
       displayName: Publish artifacts
       inputs:
-        targetPath: '$(build.artifactstagingdirectory)'
+        targetPath: '$(build.artifactstagingdirectory)/artifacts'
         artifactName: JobJar
 
     # Passing variables cross stages is not supported in Azure Pipeline as of now
@@ -64,12 +65,12 @@ stages:
     # Credits go to Alessandro Segala who mentioned this workaround here:
     # https://medium.com/microsoftazure/how-to-pass-variables-in-azure-pipelines-yaml-tasks-5c81c5d31763
     - bash: |
-        mkdir -p $(Pipeline.Workspace)/variables
-        cd '$(build.artifactstagingdirectory)'
-        ls $(vvpJobJarPrefix)-*.jar > $(Pipeline.Workspace)/variables/artifactName
+        mkdir -p $(build.artifactstagingdirectory)/variables
+        cd '$(build.artifactstagingdirectory)/artifacts'
+        ls $(vvpJobJarPrefix)-*.jar > ../variables/artifactName
       displayName: Save artifact name
 
-    - publish: $(Pipeline.Workspace)/variables
+    - publish: $(build.artifactstagingdirectory)/variables
       artifact: variables
       displayName: Publish artifact name
 
@@ -89,12 +90,12 @@ stages:
         displayName: Download artifacts
         inputs:
           artifact: 'JobJar'
-          downloadPath: '$(build.artifactstagingdirectory)' 
+          downloadPath: '$(build.artifactstagingdirectory)/artifacts' 
 
       - task: AzureFileCopy@3
         displayName: Deploy to blob storage
         inputs:
-          sourcePath: '$(build.artifactstagingdirectory)' 
+          sourcePath: '$(build.artifactstagingdirectory)/artifacts' 
           azureSubscription: '$(azureSubscription)'
           destination: azureBlob
           storage: vvppipelinestorage
