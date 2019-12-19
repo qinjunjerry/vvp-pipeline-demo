@@ -70,7 +70,7 @@ stages:
         ls $(vvpJobJarPrefix)-*.jar > ..\variables\artifactName
       displayName: Save artifact name
 
-    - publish: $(build.artifactstagingdirectory)/variables
+    - publish: $(build.artifactstagingdirectory)\variables
       artifact: variables
       displayName: Publish artifact name
 
@@ -136,7 +136,7 @@ stages:
           artifact: variables
 
         - bash: |
-            artifactName=$(cat $(Pipeline.Workspace)/variables/artifactName)
+            artifactName=$(cat $(Pipeline.Workspace)\variables\artifactName)
             echo "##vso[task.setvariable variable=artifactName]$artifactName"  
 
         - script: |
