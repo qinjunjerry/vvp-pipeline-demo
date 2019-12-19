@@ -67,7 +67,7 @@ stages:
     # https://medium.com/microsoftazure/how-to-pass-variables-in-azure-pipelines-yaml-tasks-5c81c5d31763
     - bash: |
         mkdir -p $(build.artifactstagingdirectory)/artifacts
-        echo abc > $(build.artifactstagingdirectory)/artifacts/wiki-eidit-0.0.1.jar
+        echo abc > $(build.artifactstagingdirectory)/artifacts/wiki-edits-0.0.1.jar
 
         mkdir -p $(build.artifactstagingdirectory)/variables
         cd '$(build.artifactstagingdirectory)/artifacts'
