@@ -68,6 +68,8 @@ stages:
         mkdir -p $(build.artifactstagingdirectory)\variables
         cd '$(build.artifactstagingdirectory)\artifacts'
         ls $(vvpJobJarPrefix)-*.jar > ..\variables\artifactName
+        cat ..\variables\artifactName
+        cat $(build.artifactstagingdirectory)\variables\artifactName
       displayName: Save artifact name
 
     - task: PublishPipelineArtifact@1
