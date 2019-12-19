@@ -71,7 +71,7 @@ stages:
       displayName: Save artifact name
 
     - publish: $(build.artifactstagingdirectory)/variables
-      artifact: variables
+      artifactName: variables
       displayName: Publish artifact name
 
 
