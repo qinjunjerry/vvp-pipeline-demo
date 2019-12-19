@@ -66,20 +66,19 @@ stages:
     # Credits go to Alessandro Segala who mentioned this workaround here:
     # https://medium.com/microsoftazure/how-to-pass-variables-in-azure-pipelines-yaml-tasks-5c81c5d31763
     - bash: |
-        mkdir -p $(build.artifactstagingdirectory)\artifacts
-        echo abc > $(build.artifactstagingdirectory)\artifacts\wiki-eidit-0.0.1.jar
+        mkdir -p $(build.artifactstagingdirectory)/artifacts
+        echo abc > $(build.artifactstagingdirectory)/artifacts/wiki-eidit-0.0.1.jar
 
-        mkdir -p $(build.artifactstagingdirectory)\variables
-        cd '$(build.artifactstagingdirectory)\artifacts'
-        ls $(vvpJobJarPrefix)-*.jar > ..\variables\artifactName
-        cat ..\variables\artifactName
-        dir ..
+        mkdir -p $(build.artifactstagingdirectory)/variables
+        cd '$(build.artifactstagingdirectory)/artifacts'
+        ls $(vvpJobJarPrefix)-*.jar > ../variables/artifactName
+        cat ../variables/artifactName
       displayName: Save variables
 
     - task: PublishPipelineArtifact@1
       displayName: Publish variables
       inputs:
-        targetPath: '$(build.artifactstagingdirectory)\variables'
+        targetPath: '$(build.artifactstagingdirectory)/variables'
         artifactName: variables
 
 
