@@ -249,13 +249,13 @@ stages:
           condition: eq(variables['deploymentId'], '')
           displayName: POST deployment
 
-# Monitor stage
-- stage: Monitor
-  displayName: Monitor stage
-  dependsOn: Submit
-  condition: succeeded()
+# # Monitor stage
+# - stage: Monitor
+#   displayName: Monitor stage
+#   dependsOn: Submit
+#   condition: succeeded()
 
-  jobs:
+#   jobs:
     - job: Delay
       displayName: Delay a few minutes
 
@@ -279,6 +279,6 @@ stages:
                   if i["metadata"]["name"] == "$(vvpJobJarPrefix)-deployment":
                           print i["status"]["state"]
             '`
-            if [ $state != "RUNNING" ]; then
+            if [ "$state" != "RUNNING" ]; then
                 exit 1
             fi
