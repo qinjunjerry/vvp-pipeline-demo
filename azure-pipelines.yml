@@ -135,7 +135,7 @@ stages:
             kind: Deployment
             apiVersion: v1
             metadata:
-              name: $(vvp-pipeline-demo-deployment)
+              name: $(vvpDeploymentName)
               namespace: $(vvpNamespace)
             spec:
               state: RUNNING
