@@ -269,6 +269,35 @@ stages:
     - job: MonitorFlinkJob
       dependsOn: Delay
       steps:
+
+        - task: KubectlInstaller@0
+          displayName: Install kubectl
+          inputs: 
+            kubectlVersion: 1.15.0
+
+        - task: AzureKeyVault@1
+          displayName: Get password
+          inputs:
+            azureSubscription: '$(azureSubscription)'
+            KeyVaultName: '$(keyVault)'
+            SecretsFilter: 'vvp-pipeline-demo-service-principal-password'
+        
+        - script: |
+            az login --service-principal -u $(servicePrincipal) \
+              -p $(vvp-pipeline-demo-service-principal-password) \
+              --tenant $(tenantId)
+          displayName: az login
+
+        - script: |
+            az aks get-credentials --resource-group $(resourceGroup) \
+              --name $(kubernetesCluster)
+          displayName: Get cluster credential
+
+        - script: |
+            kubectl port-forward service/vvp-ververica-platform 8080:80 \
+              --namespace $(kubernetesNamespace) &
+          displayName: Port forward
+
         - script: |
             state=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" \
             -H "accept: application/json" -s \
