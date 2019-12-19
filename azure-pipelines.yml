@@ -82,11 +82,11 @@ stages:
         artifactName: variables
 
 
-# ### Deploy stage
-# - stage: Deploy
-#   displayName: Deploy stage
-#   dependsOn: Build
-#   condition: succeeded()
+### Deploy stage
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+  condition: succeeded()
 #   jobs:
 #     - job: DownloadAndDeploy
 #       displayName: Download and deploy
