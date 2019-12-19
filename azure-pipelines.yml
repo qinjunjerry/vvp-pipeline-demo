@@ -249,13 +249,13 @@ stages:
           condition: eq(variables['deploymentId'], '')
           displayName: POST deployment
 
-# # Monitor stage
-# - stage: Monitor
-#   displayName: Monitor stage
-#   dependsOn: Submit
-#   condition: succeeded()
+# Monitor stage
+- stage: Monitor
+  displayName: Monitor stage
+  dependsOn: Submit
+  condition: succeeded()
 
-#   jobs:
+  jobs:
     - job: Delay
       displayName: Delay a few minutes
 
@@ -264,7 +264,7 @@ stages:
       steps:
         - task: Delay@1
           inputs:
-            delayForMinutes: '3'
+            delayForMinutes: '0.2'
 
     - job: MonitorFlinkJob
       dependsOn: Delay
