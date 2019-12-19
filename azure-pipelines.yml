@@ -70,7 +70,7 @@ stages:
         ls $(vvpJobJarPrefix)-*.jar > ..\variables\artifactName
       displayName: Save artifact name
 
-    - publish: $(build.artifactstagingdirectory)\variables
+    - publish: $(build.artifactstagingdirectory)/variables
       artifact: variables
       displayName: Publish artifact name
 
