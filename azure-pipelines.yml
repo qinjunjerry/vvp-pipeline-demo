@@ -71,9 +71,11 @@ stages:
         basename '$(build.artifactstagingdirectory)/artifacts/$(vvpJobJarPrefix)-*.jar' > artifactName
       displayName: Save variables
 
-    - publish: $(build.artifactstagingdirectory)/variables
-      artifact: variables
-
+    - task: PublishPipelineArtifact@1
+      displayName: Publish variables
+      inputs:
+        targetPath: '$(build.artifactstagingdirectory)/variables'
+        artifactName: variables
 
 ### Deploy stage
 - stage: Deploy
@@ -133,8 +135,11 @@ stages:
             SecretsFilter: 'vvp-pipeline-demo-service-principal-password'
 
         # Here we download the artifact to get the artifactName
-        - download: current
-          artifact: $(build.artifactstagingdirectory)/variables
+        - task: DownloadPipelineArtifact@2
+          displayName: Download artifacts
+          inputs:
+            artifact: 'variables'
+            downloadPath: '$(build.artifactstagingdirectory)/variables' 
 
         - bash: |
             name=`cat $(build.artifactstagingdirectory)/variables/artifactName`
