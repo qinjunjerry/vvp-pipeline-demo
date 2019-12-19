@@ -99,7 +99,7 @@ stages:
     - job: SubmitFlinkJob
       displayName: Submit flink job
       variables:
-        artifactName: $[ dependencies.DownloadAndDeploy.outputs['DownloadAndDeploy.extractArtifactName.artifactName'] ]
+        artifactName: $[ dependencies.DownloadAndDeploy.outputs['extractArtifactName.artifactName'] ]
 
       steps:
 
