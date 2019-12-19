@@ -81,8 +81,8 @@ stages:
 # Deploy stage
 - stage: Deploy
   displayName: Deploy stage
-  dependsOn: Build
-  condition: succeeded()
+  #dependsOn: Build
+  #condition: succeeded()
 
   jobs:
     - job: DownloadAndDeploy
@@ -113,8 +113,8 @@ stages:
 # Submit stage
 - stage: Submit
   displayName: Submit stage
-  dependsOn: Deploy
-  condition: succeeded()
+  #dependsOn: Deploy
+  #condition: succeeded()
 
   jobs:
     - job: SubmitFlinkJob
