@@ -73,7 +73,7 @@ stages:
     - task: PublishPipelineArtifact@1
       displayName: Publish variables
       inputs:
-        targetPath: '../variables'
+        targetPath: '..\variables'
         artifactName: variables
 
 
