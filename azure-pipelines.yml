@@ -48,7 +48,7 @@ stages:
         mavenPomFile: 'pom.xml'
 
     - task: CopyFiles@2
-      displayName: Stage job jar
+      displayName: Stage artifacts
       inputs:
         SourceFolder: 'target'
         Contents: '$(vvpJobJarPrefix)-*.jar'
@@ -68,14 +68,12 @@ stages:
         mkdir -p $(build.artifactstagingdirectory)\variables
         cd '$(build.artifactstagingdirectory)\artifacts'
         ls $(vvpJobJarPrefix)-*.jar > ..\variables\artifactName
-        cat ..\variables\artifactName
-        cat '$(build.artifactstagingdirectory)\variables\artifactName'
-      displayName: Save artifact name
+      displayName: Save veriables
 
     - task: PublishPipelineArtifact@1
-      displayName: Publish variable artifacts
+      displayName: Publish variables
       inputs:
-        targetPath: '$(build.artifactstagingdirectory)/variables'
+        targetPath: '../variables'
         artifactName: variables
 
 
