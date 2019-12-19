@@ -71,7 +71,7 @@ stages:
         basename '$(build.artifactstagingdirectory)/artifacts/$(vvpJobJarPrefix)-*.jar > artifactName'
       displayName: Save variables
 
-    - publish: $(Pipeline.Workspace)/variables
+    - publish: $(build.artifactstagingdirectory)/variables
       artifact: variables
 
 
