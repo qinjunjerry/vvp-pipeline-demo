@@ -76,7 +76,7 @@ stages:
         inputs:
           artifact: 'JobJar'
           downloadPath: '$(build.artifactstagingdirectory)' 
-      - script: |
+      - bash: |
           listArtifactName=`cd '$(build.artifactstagingdirectory)'; ls $(vvpJobJarPrefix)-*.jar`
           echo "##vso[task.setvariable variable=artifactName]$listArtifactName"
       - script: |
