@@ -19,7 +19,7 @@ variables:
   tenantId: '2925ee25-3bd0-402a-88f1-69307e6a39f3'
   keyVault: 'vvp-pipeline-keyvault'
   storageAccount: 'vvppipelinestorage'
-  blobContainer: 'vvp-pipeline-artifacts'
+  blobContainer: 'vvp-pipeline-container'
 
   # Kubernetes
   kubernetesCluster: 'vvp-pipeline-cluster'
