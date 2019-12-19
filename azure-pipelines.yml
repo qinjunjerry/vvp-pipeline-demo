@@ -40,6 +40,8 @@ stages:
       vmImage: $(vmImageName)
 
     steps:
+    - script: echo $(Build.SourceVersion)
+
     - task: Maven@3
       displayName: Maven package
       inputs:
