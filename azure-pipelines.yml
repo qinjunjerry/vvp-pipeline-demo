@@ -49,7 +49,7 @@ stages:
       displayName: Stage job jar
       inputs:
         SourceFolder: 'target'
-        Contents: '$(vvpJobJar)-*.jar'
+        Contents: '$(vvpJobJarPrefix)-*.jar'
         TargetFolder: '$(build.artifactstagingdirectory)'
 
     - task: PublishPipelineArtifact@1
