@@ -59,6 +59,21 @@ stages:
         targetPath: '$(build.artifactstagingdirectory)'
         artifactName: JobJar
 
+    # Passing variables cross stages is not supported in Azure Pipeline as of now
+    # As a workaround: we publish it as an artifact then use it in another stage
+    # Credits go to Alessandro Segala who mentioned this workaround here:
+    # https://medium.com/microsoftazure/how-to-pass-variables-in-azure-pipelines-yaml-tasks-5c81c5d31763
+    - bash: |
+        mkdir -p $(Pipeline.Workspace)/variables
+        cd '$(build.artifactstagingdirectory)'
+        ls $(vvpJobJarPrefix)-*.jar > $(Pipeline.Workspace)/variables/artifactName
+      displayName: Save artifact name
+
+    - publish: $(Pipeline.Workspace)/variables
+      artifact: variables
+      displayName: Publish artifact name
+
+
 ### Deploy stage
 - stage: Deploy
   displayName: Deploy stage
@@ -75,11 +90,6 @@ stages:
         inputs:
           artifact: 'JobJar'
           downloadPath: '$(build.artifactstagingdirectory)' 
-
-      - bash: |
-          listArtifactNames=`cd '$(build.artifactstagingdirectory)'; ls $(vvpJobJarPrefix)-*.jar`
-          echo "##vso[task.setvariable variable=artifactName;isOutput=true]$listArtifactNames"
-        name: extractArtifactName
 
       - task: AzureFileCopy@3
         displayName: Deploy to blob storage
@@ -119,6 +129,14 @@ stages:
             azureSubscription: '$(azureSubscription)'
             KeyVaultName: '$(keyVault)'
             SecretsFilter: 'vvp-pipeline-demo-service-principal-password'
+
+        # Here we download the artifact to get the artifactName
+        - download: current
+          artifact: variables
+
+        - bash: |
+            artifactName=$(cat $(Pipeline.Workspace)/variables/artifactName)
+            echo "##vso[task.setvariable variable=artifactName]$artifactName"  
 
         - script: |
             az login --service-principal -u $(servicePrincipal) \
