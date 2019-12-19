@@ -77,8 +77,8 @@ stages:
           artifact: 'JobJar'
           downloadPath: '$(build.artifactstagingdirectory)' 
       - script: |
-          artifactName=`cd '$(build.artifactstagingdirectory)'; ls $(vvpJobJarPrefix)-*.jar`
-          echo "##vso[task.setvariable variable=artifactName]$artifactName"
+          listArtifactName=`cd '$(build.artifactstagingdirectory)'; ls $(vvpJobJarPrefix)-*.jar`
+          echo "##vso[task.setvariable variable=artifactName]$listArtifactName"
       - script: |
           echo $(artifactName)
 #       - task: AzureFileCopy@3
