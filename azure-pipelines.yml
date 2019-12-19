@@ -13,25 +13,26 @@ variables:
   # DEBUG
   system.debug: true
 
-  # Ververica Platform related settings
-  vvpResourceGroup: 'vvp-pipeline-demo'
-  vvpClusterName: 'vvp-pipeline-cluster'
-  vvpKubernetesNamespace: 'vvp'
-
-  vvpNamespace: 'default'
-  vvpDeploymentTarget: '6ebbe4f9-0377-462a-9112-81a2ef4ea0b5'
+  # Azure resources
+  resourceGroup: 'vvp-pipeline-demo'
   servicePrincipal: 'http://vvp-pipeline-demo-service-principal'
   tenantId: '2925ee25-3bd0-402a-88f1-69307e6a39f3'
   keyVault: 'vvp-pipeline-keyvault'
-  vvpJobJarPrefix: 'wiki-edits'
-  vvpPipelineDemoStorage: 'vvppipelinestorage'
-  vvpPipelineDemoBlobContainer: 'vvp-pipeline-artifacts'
-  vvpDeploymentName: 'vvp-pipeline-demo-deployment'
+  storageAccount: 'vvppipelinestorage'
+  blobContainer: 'vvp-pipeline-artifacts'
 
+  # Kubernetes
+  kubernetesCluster: 'vvp-pipeline-cluster'
+  kubernetesNamespace: 'vvp'
+
+  # Ververica Platform
+  vvpNamespace: 'default'
+  vvpDeploymentTarget: '6ebbe4f9-0377-462a-9112-81a2ef4ea0b5'
+  vvpJobJarPrefix: 'wiki-edits'
 
 stages:
 
-### Build stage
+# Build stage
 - stage: Build
   displayName: Build stage
   jobs:
@@ -63,7 +64,7 @@ stages:
 
     # Passing variables cross stages is not supported in Azure Pipeline as of now
     # As a workaround: we publish it as an artifact then use it in another stage
-    # Credits go to Alessandro Segala who mentioned this workaround here:
+    # This is based on Alessandro Segal's blog post:
     # https://medium.com/microsoftazure/how-to-pass-variables-in-azure-pipelines-yaml-tasks-5c81c5d31763
     - bash: |
         mkdir -p $(build.artifactstagingdirectory)/variables
@@ -77,17 +78,22 @@ stages:
         targetPath: '$(build.artifactstagingdirectory)/variables'
         artifactName: variables
 
-### Deploy stage
+# Deploy stage
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
   condition: succeeded()
+
   jobs:
     - job: DownloadAndDeploy
       displayName: Download and deploy
+
+      # We use a windows image here because AzureFileCopy@3 runs only on Windows
       pool:
         vmImage: 'windows-latest'
+
       steps:
+
       - task: DownloadPipelineArtifact@2
         displayName: Download artifacts
         inputs:
@@ -100,14 +106,16 @@ stages:
           sourcePath: '$(build.artifactstagingdirectory)/artifacts' 
           azureSubscription: '$(azureSubscription)'
           destination: azureBlob
-          storage: $(vvpPipelineDemoStorage)
-          containerName: $(vvpPipelineDemoBlobContainer)
+          storage: $(storageAccount)
+          containerName: $(blobContainer)
           BlobPrefix: 'artifacts/namespaces/$(vvpNamespace)'
 
+# Submit stage
 - stage: Submit
   displayName: Submit stage
   dependsOn: Deploy
-  condition: succeeded()  
+  condition: succeeded()
+
   jobs:
     - job: SubmitFlinkJob
       displayName: Submit flink job
@@ -117,6 +125,10 @@ stages:
 
       steps:
 
+        # extract commit hash
+        # We use the commit hash in jar URI when POST/PATCH a deployment in VVP, e.g.,
+        #     wasbs://...../job.jar?commit=e81c66d
+        # This way VVP will suspend & start the flink job upon a PATCH action
         - bash: |
             commit=`echo $(Build.SourceVersion) | cut -c 1-7`
             echo "##vso[task.setvariable variable=commitHash]$commit"
@@ -151,14 +163,17 @@ stages:
               -p $(vvp-pipeline-demo-service-principal-password) \
               --tenant $(tenantId)
           displayName: az login
+
         - script: |
-            az aks get-credentials --resource-group $(vvpResourceGroup) \
-              --name $(vvpClusterName)
+            az aks get-credentials --resource-group $(resourceGroup) \
+              --name $(kubernetesCluster)
           displayName: Get cluster credential
+
         - script: |
             kubectl port-forward service/vvp-ververica-platform 8080:80 \
-              --namespace $(vvpKubernetesNamespace) &
+              --namespace $(kubernetesNamespace) &
           displayName: Port forward
+
         - script: |
             findDeploymentId=`curl -X GET "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
             -H "accept: application/json" -s \
@@ -166,11 +181,12 @@ stages:
             import sys, json
             j=json.loads(sys.stdin.read())
             for i in j["items"]:
-              if i["metadata"]["name"] == "$(vvpDeploymentName)":
+              if i["metadata"]["name"] == "$(vvpJobJarPrefix)-deployment":
                 print i["metadata"]["id"]
             '`
             echo "##vso[task.setvariable variable=deploymentId]$findDeploymentId"
           displayName: Check deployment
+
         - script: |
             echo "PATCH Deployment $(deploymentId)"
             curl -X PATCH "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments/$(deploymentId)" \
@@ -183,17 +199,18 @@ stages:
                 spec:
                   artifact:
                     jarUri: >-
-                      wasbs://$(vvpPipelineDemoBlobContainer)@$(vvpPipelineDemoStorage).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(artifactName)?commit=$(commitHash)
+                      wasbs://$(blobContainer)@$(storageAccount).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(artifactName)?commit=$(commitHash)
             '
           condition: ne(variables['deploymentId'], '')
           displayName: PATCH deployment
+
         - script: |
             curl -X POST "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
             -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d "
             kind: Deployment
             apiVersion: v1
             metadata:
-              name: $(vvpDeploymentName)
+              name: $(vvpJobJarPrefix)-deployment
               namespace: $(vvpNamespace)
             spec:
               state: RUNNING
@@ -210,7 +227,7 @@ stages:
                   artifact:
                     kind: JAR
                     jarUri: >-
-                      wasbs://$(vvpPipelineDemoBlobContainer)@$(vvpPipelineDemoStorage).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(artifactName)?commit=$(commitHash)
+                      wasbs://$(blobContainer)@$(storageAccount).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(artifactName)?commit=$(commitHash)
                     flinkVersion: 1.9
                     flinkImageRegistry: registry.platform.data-artisans.net/v2.0
                     flinkImageRepository: flink
