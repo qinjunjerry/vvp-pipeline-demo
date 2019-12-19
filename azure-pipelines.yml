@@ -30,6 +30,9 @@ variables:
   vvpDeploymentTarget: '6ebbe4f9-0377-462a-9112-81a2ef4ea0b5'
   vvpJobJarPrefix: 'wiki-edits'
 
+  # misc.
+  delayMinutes: 0
+
 stages:
 
 # Build stage
@@ -256,15 +259,15 @@ stages:
   condition: succeeded()
 
   jobs:
-    # - job: Delay
-    #   displayName: Delay a few minutes
+    - job: Delay
+      displayName: Delay a few minutes
 
-    #   pool: server
+      pool: server
  
-    #   steps:
-    #     - task: Delay@1
-    #       inputs:
-    #         delayForMinutes: '3'
+      steps:
+        - task: Delay@1
+          inputs:
+            delayForMinutes: '$(delayMinutes)'
 
     - job: MonitorFlinkJob
       dependsOn: Delay
