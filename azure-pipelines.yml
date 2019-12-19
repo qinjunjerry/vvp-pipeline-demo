@@ -70,9 +70,11 @@ stages:
         ls $(vvpJobJarPrefix)-*.jar > ..\variables\artifactName
       displayName: Save artifact name
 
-    - publish: $(build.artifactstagingdirectory)/variables
-      artifactName: variables
-      displayName: Publish artifact name
+    - task: PublishPipelineArtifact@1
+      displayName: Publish variable artifacts
+      inputs:
+        targetPath: '$(build.artifactstagingdirectory)/variables'
+        artifactName: variables
 
 
 ### Deploy stage
