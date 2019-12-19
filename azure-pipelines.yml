@@ -40,6 +40,7 @@ stages:
       vmImage: $(vmImageName)
 
     steps:
+
     - task: Maven@3
       displayName: Maven package
       inputs:
@@ -51,11 +52,6 @@ stages:
         SourceFolder: 'target'
         Contents: '$(vvpJobJarPrefix)-*.jar'
         TargetFolder: '$(build.artifactstagingdirectory)'
-
-    - bash: |
-        listArtifactNames=`cd '$(build.artifactstagingdirectory)'; ls $(vvpJobJarPrefix)-*.jar`
-        echo "##vso[task.setvariable variable=artifactName;isOutput=true]$listArtifactNames"
-      name: extractArtifactName
 
     - task: PublishPipelineArtifact@1
       displayName: Publish artifacts
@@ -79,6 +75,12 @@ stages:
         inputs:
           artifact: 'JobJar'
           downloadPath: '$(build.artifactstagingdirectory)' 
+
+      - bash: |
+          listArtifactNames=`cd '$(build.artifactstagingdirectory)'; ls $(vvpJobJarPrefix)-*.jar`
+          echo "##vso[task.setvariable variable=artifactName;isOutput=true]$listArtifactNames"
+        name: extractArtifactName
+
       - task: AzureFileCopy@3
         displayName: Deploy to blob storage
         inputs:
@@ -97,7 +99,7 @@ stages:
     - job: SubmitFlinkJob
       displayName: Submit flink job
       variables:
-        artifactName: $[ dependencies.PackageAndPublish.outputs['PackageAndPublish.extractArtifactName.artifactName'] ]
+        artifactName: $[ dependencies.DownloadAndDeploy.outputs['DownloadAndDeploy.extractArtifactName.artifactName'] ]
 
       steps:
 
