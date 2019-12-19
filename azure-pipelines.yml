@@ -31,7 +31,7 @@ variables:
   vvpJobJarPrefix: 'wiki-edits'
 
   # misc.
-  delayMinutes: 0
+  delayMinutes: 3
 
 stages:
 
@@ -312,5 +312,6 @@ stages:
                           print i["status"]["state"]
             '`
             if [ "$state" != "RUNNING" ]; then
+                echo Job is still in state: $state
                 exit 1
             fi
