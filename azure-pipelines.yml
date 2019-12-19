@@ -38,7 +38,7 @@ stages:
     displayName: Package and publish
 
     pool:
-      vmImage: 'ubuntu-latest' 
+      vmImage: 'windows-latest' 
       #$(vmImageName)
 
     steps:
