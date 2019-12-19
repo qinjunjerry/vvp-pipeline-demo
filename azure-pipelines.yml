@@ -6,8 +6,9 @@ variables:
   # Azure Resource Manager service connection 
   azureSubscription: 'vvp-pipeline-service-connection'
 
-  # Agent VM image name: Windows is needed by AzureFileCopy@3
-  vmImageName: 'windows-latest'
+  # Agent VM image name
+  # The depoly stage uses a Windows image which is required by AzureFileCopy@3 task
+  vmImageName: 'ubuntu-latest'
 
   # DEBUG
   system.debug: true
@@ -38,48 +39,40 @@ stages:
     displayName: Package and publish
 
     pool:
-      vmImage: 'windows-latest' 
-      #$(vmImageName)
+      vmImage: $(vmImageName)
 
     steps:
 
-    # - task: Maven@3
-    #   displayName: Maven package
-    #   inputs:
-    #     mavenPomFile: 'pom.xml'
+    - task: Maven@3
+      displayName: Maven package
+      inputs:
+        mavenPomFile: 'pom.xml'
 
-    # - task: CopyFiles@2
-    #   displayName: Stage artifacts
-    #   inputs:
-    #     SourceFolder: 'target'
-    #     Contents: '$(vvpJobJarPrefix)-*.jar'
-    #     TargetFolder: '$(build.artifactstagingdirectory)/artifacts'
+    - task: CopyFiles@2
+      displayName: Stage artifacts
+      inputs:
+        SourceFolder: 'target'
+        Contents: '$(vvpJobJarPrefix)-*.jar'
+        TargetFolder: '$(build.artifactstagingdirectory)/artifacts'
 
-    # - task: PublishPipelineArtifact@1
-    #   displayName: Publish artifacts
-    #   inputs:
-    #     targetPath: '$(build.artifactstagingdirectory)/artifacts'
-    #     artifactName: JobJar
+    - task: PublishPipelineArtifact@1
+      displayName: Publish artifacts
+      inputs:
+        targetPath: '$(build.artifactstagingdirectory)/artifacts'
+        artifactName: JobJar
 
     # Passing variables cross stages is not supported in Azure Pipeline as of now
     # As a workaround: we publish it as an artifact then use it in another stage
     # Credits go to Alessandro Segala who mentioned this workaround here:
     # https://medium.com/microsoftazure/how-to-pass-variables-in-azure-pipelines-yaml-tasks-5c81c5d31763
     - bash: |
-        mkdir -p $(build.artifactstagingdirectory)/artifacts
-        echo abc > $(build.artifactstagingdirectory)/artifacts/wiki-edits-0.0.1.jar
-
         mkdir -p $(build.artifactstagingdirectory)/variables
-        cd '$(build.artifactstagingdirectory)/artifacts'
-        ls $(vvpJobJarPrefix)-*.jar > ../variables/artifactName
-        cat ../variables/artifactName
+        cd $(build.artifactstagingdirectory)/variables
+        basename '$(build.artifactstagingdirectory)/artifacts/$(vvpJobJarPrefix)-*.jar > artifactName'
       displayName: Save variables
 
-    - task: PublishPipelineArtifact@1
-      displayName: Publish variables
-      inputs:
-        targetPath: '$(build.artifactstagingdirectory)/variables'
-        artifactName: variables
+    - publish: $(Pipeline.Workspace)/variables
+      artifact: variables
 
 
 ### Deploy stage
@@ -87,27 +80,27 @@ stages:
   displayName: Deploy stage
   dependsOn: Build
   condition: succeeded()
-#   jobs:
-#     - job: DownloadAndDeploy
-#       displayName: Download and deploy
-#       pool:
-#         vmImage: $(vmImageName)
-#       steps:
-#       - task: DownloadPipelineArtifact@2
-#         displayName: Download artifacts
-#         inputs:
-#           artifact: 'JobJar'
-#           downloadPath: '$(build.artifactstagingdirectory)/artifacts' 
+  jobs:
+    - job: DownloadAndDeploy
+      displayName: Download and deploy
+      pool:
+        vmImage: 'windows-latest'
+      steps:
+      - task: DownloadPipelineArtifact@2
+        displayName: Download artifacts
+        inputs:
+          artifact: 'JobJar'
+          downloadPath: '$(build.artifactstagingdirectory)/artifacts' 
 
-#       - task: AzureFileCopy@3
-#         displayName: Deploy to blob storage
-#         inputs:
-#           sourcePath: '$(build.artifactstagingdirectory)/artifacts' 
-#           azureSubscription: '$(azureSubscription)'
-#           destination: azureBlob
-#           storage: vvppipelinestorage
-#           containerName: vvp-pipeline-artifacts
-#           BlobPrefix: 'artifacts/namespaces/$(vvpNamespace)'
+      - task: AzureFileCopy@3
+        displayName: Deploy to blob storage
+        inputs:
+          sourcePath: '$(build.artifactstagingdirectory)/artifacts' 
+          azureSubscription: '$(azureSubscription)'
+          destination: azureBlob
+          storage: $(vvpPipelineDemoStorage)
+          containerName: $(vvpPipelineDemoBlobContainer)
+          BlobPrefix: 'artifacts/namespaces/$(vvpNamespace)'
 
 - stage: Submit
   displayName: Submit stage
@@ -117,119 +110,119 @@ stages:
     - job: SubmitFlinkJob
       displayName: Submit flink job
 
+      pool:
+        vmImage: $(vmImageName)
+
       steps:
 
-#         - bash: |
-#             commit=`echo $(Build.SourceVersion) | cut -c 1-7`
-#             echo "##vso[task.setvariable variable=commitHash]$commit"
-#           name: extractCommitHash
+        - bash: |
+            commit=`echo $(Build.SourceVersion) | cut -c 1-7`
+            echo "##vso[task.setvariable variable=commitHash]$commit"
+          name: extractCommitHash
 
-#         - task: KubectlInstaller@0
-#           displayName: Install kubectl
-#           inputs: 
-#             kubectlVersion: 1.15.0
+        - task: KubectlInstaller@0
+          displayName: Install kubectl
+          inputs: 
+            kubectlVersion: 1.15.0
 
-#         - task: AzureKeyVault@1
-#           displayName: Get password
-#           inputs:
-#             azureSubscription: '$(azureSubscription)'
-#             KeyVaultName: '$(keyVault)'
-#             SecretsFilter: 'vvp-pipeline-demo-service-principal-password'
+        - task: AzureKeyVault@1
+          displayName: Get password
+          inputs:
+            azureSubscription: '$(azureSubscription)'
+            KeyVaultName: '$(keyVault)'
+            SecretsFilter: 'vvp-pipeline-demo-service-principal-password'
 
         # Here we download the artifact to get the artifactName
         - download: current
           artifact: variables
 
         - bash: |
-            name=`cat $(Pipeline.Workspace)/variables/artifactName`
+            name=`cat variables/artifactName`
             echo "##vso[task.setvariable variable=artifactName]$name"
         
-        - bash: |
-            echo "Artifact name = $(artifactName)"
-
-#         - script: |
-#             az login --service-principal -u $(servicePrincipal) \
-#               -p $(vvp-pipeline-demo-service-principal-password) \
-#               --tenant $(tenantId)
-#           displayName: az login
-#         - script: |
-#             az aks get-credentials --resource-group $(vvpResourceGroup) \
-#               --name $(vvpClusterName)
-#           displayName: Get cluster credential
-#         - script: |
-#             kubectl port-forward service/vvp-ververica-platform 8080:80 \
-#               --namespace $(vvpKubernetesNamespace) &
-#           displayName: Port forward
-#         - script: |
-#             findDeploymentId=`curl -X GET "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
-#             -H "accept: application/json" -s \
-#             | python -c '
-#             import sys, json
-#             j=json.loads(sys.stdin.read())
-#             for i in j["items"]:
-#               if i["metadata"]["name"] == "$(vvpDeploymentName)":
-#                 print i["metadata"]["id"]
-#             '`
-#             echo "##vso[task.setvariable variable=deploymentId]$findDeploymentId"
-#           displayName: Check deployment
-#         - script: |
-#             echo "PATCH Deployment $(deploymentId)"
-#             curl -X PATCH "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments/$(deploymentId)" \
-#             -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d '
-#             kind: Deployment
-#             apiVersion: v1
-#             spec:
-#               state: RUNNING
-#               template:
-#                 spec:
-#                   artifact:
-#                     jarUri: >-
-#                       wasbs://$(vvpPipelineDemoBlobContainer)@$(vvpPipelineDemoStorage).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(artifactName)?commit=$(commitHash)
-#             '
-#           condition: ne(variables['deploymentId'], '')
-#           displayName: PATCH deployment
-#         - script: |
-#             curl -X POST "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
-#             -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d "
-#             kind: Deployment
-#             apiVersion: v1
-#             metadata:
-#               name: $(vvpDeploymentName)
-#               namespace: $(vvpNamespace)
-#             spec:
-#               state: RUNNING
-#               upgradeStrategy:
-#                 kind: STATELESS
-#               restoreStrategy:
-#                 kind: LATEST_SAVEPOINT
-#                 allowNonRestoredState: false
-#               deploymentTargetId: $(vvpDeploymentTarget)
-#               template:
-#                 metadata:
-#                   annotations: {}
-#                 spec:
-#                   artifact:
-#                     kind: JAR
-#                     jarUri: >-
-#                       wasbs://$(vvpPipelineDemoBlobContainer)@$(vvpPipelineDemoStorage).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(artifactName)?commit=$(commitHash)
-#                     flinkVersion: 1.9
-#                     flinkImageRegistry: registry.platform.data-artisans.net/v2.0
-#                     flinkImageRepository: flink
-#                     flinkImageTag: 1.9.1-stream1-scala_2.12
-#                   parallelism: 1
-#                   resources:
-#                     jobmanager:
-#                       cpu: 1
-#                       memory: 1G
-#                     taskmanager:
-#                       cpu: 1
-#                       memory: 2G
-#                   flinkConfiguration: {}
-#                   logging:
-#                     log4jLoggers: {}
-#             status:
-#               state: CANCELLED
-#             "
-#           condition: eq(variables['deploymentId'], '')
-#           displayName: POST deployment
+        - script: |
+            az login --service-principal -u $(servicePrincipal) \
+              -p $(vvp-pipeline-demo-service-principal-password) \
+              --tenant $(tenantId)
+          displayName: az login
+        - script: |
+            az aks get-credentials --resource-group $(vvpResourceGroup) \
+              --name $(vvpClusterName)
+          displayName: Get cluster credential
+        - script: |
+            kubectl port-forward service/vvp-ververica-platform 8080:80 \
+              --namespace $(vvpKubernetesNamespace) &
+          displayName: Port forward
+        - script: |
+            findDeploymentId=`curl -X GET "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
+            -H "accept: application/json" -s \
+            | python -c '
+            import sys, json
+            j=json.loads(sys.stdin.read())
+            for i in j["items"]:
+              if i["metadata"]["name"] == "$(vvpDeploymentName)":
+                print i["metadata"]["id"]
+            '`
+            echo "##vso[task.setvariable variable=deploymentId]$findDeploymentId"
+          displayName: Check deployment
+        - script: |
+            echo "PATCH Deployment $(deploymentId)"
+            curl -X PATCH "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments/$(deploymentId)" \
+            -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d '
+            kind: Deployment
+            apiVersion: v1
+            spec:
+              state: RUNNING
+              template:
+                spec:
+                  artifact:
+                    jarUri: >-
+                      wasbs://$(vvpPipelineDemoBlobContainer)@$(vvpPipelineDemoStorage).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(artifactName)?commit=$(commitHash)
+            '
+          condition: ne(variables['deploymentId'], '')
+          displayName: PATCH deployment
+        - script: |
+            curl -X POST "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
+            -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d "
+            kind: Deployment
+            apiVersion: v1
+            metadata:
+              name: $(vvpDeploymentName)
+              namespace: $(vvpNamespace)
+            spec:
+              state: RUNNING
+              upgradeStrategy:
+                kind: STATELESS
+              restoreStrategy:
+                kind: LATEST_SAVEPOINT
+                allowNonRestoredState: false
+              deploymentTargetId: $(vvpDeploymentTarget)
+              template:
+                metadata:
+                  annotations: {}
+                spec:
+                  artifact:
+                    kind: JAR
+                    jarUri: >-
+                      wasbs://$(vvpPipelineDemoBlobContainer)@$(vvpPipelineDemoStorage).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(artifactName)?commit=$(commitHash)
+                    flinkVersion: 1.9
+                    flinkImageRegistry: registry.platform.data-artisans.net/v2.0
+                    flinkImageRepository: flink
+                    flinkImageTag: 1.9.1-stream1-scala_2.12
+                  parallelism: 1
+                  resources:
+                    jobmanager:
+                      cpu: 1
+                      memory: 1G
+                    taskmanager:
+                      cpu: 1
+                      memory: 2G
+                  flinkConfiguration: {}
+                  logging:
+                    log4jLoggers: {}
+            status:
+              state: CANCELLED
+            "
+          condition: eq(variables['deploymentId'], '')
+          displayName: POST deployment
 
