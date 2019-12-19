@@ -256,15 +256,15 @@ stages:
   condition: succeeded()
 
   jobs:
-    - job: Delay
-      displayName: Delay a few minutes
+    # - job: Delay
+    #   displayName: Delay a few minutes
 
-      pool: server
+    #   pool: server
  
-      steps:
-        - task: Delay@1
-          inputs:
-            delayForMinutes: '0.2'
+    #   steps:
+    #     - task: Delay@1
+    #       inputs:
+    #         delayForMinutes: '3'
 
     - job: MonitorFlinkJob
       dependsOn: Delay
