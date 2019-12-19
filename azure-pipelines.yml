@@ -110,12 +110,19 @@ stages:
         - script: kubectl port-forward service/vvp-ververica-platform 8080:80 --namespace $(vvpKubernetesNamespace) &
           displayName: Port forward
         - script: |
-            found=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/json" -s | python -c 'import sys, json; j=json.loads(sys.stdin.read()); print "$(vvpDeploymentName)" in [ i["metadata"]["name"] for i in j["items"] ]'`
-            echo "##vso[task.setvariable variable=exists]$found"
+            deploymentId=`curl -X GET "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" -H "accept: application/json" -s \
+            | python -c '
+              import sys, json
+              j=json.loads(sys.stdin.read())
+              for i in j["items"]:
+                      if i["metadata"]["name"] == "$(vvpDeploymentName)":
+                              print i["metadata"]["id"]
+            '`
+            echo "##vso[task.setvariable variable=deploymentId]$deploymentId"
           displayName: Check deployment
         - script: |
             echo "PATCH Deployment"
-          condition: eq(variables['exists'], 'True')
+          condition: ne(variables['deploymentId'], '')
           displayName: PATCH deployment
         - script: |
             curl -X POST "http://localhost:8080/api/v1/namespaces/default/deployments" -H "accept: application/yaml" -H "Content-Type: application/yaml" -d "
@@ -158,6 +165,6 @@ stages:
             status:
               state: CANCELLED
             "
-          condition: ne(variables['exists'], 'True')
+          condition: eq(variables['deploymentId'], '')
           displayName: POST deployment
 
