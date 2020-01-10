@@ -74,7 +74,7 @@ under the License.
 			<version>${flink.version}</version>
 		</dependency>
 
-		<!-- test elasticsearch6 connector -->
+		<!-- test elasticsearch6 connector >
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-connector-elasticsearch6_${scala.binary.version}</artifactId>
@@ -85,7 +85,7 @@ under the License.
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
             </exclusions>
-		</dependency>
+		</dependency-->
 
 
 		<!-- Example:
