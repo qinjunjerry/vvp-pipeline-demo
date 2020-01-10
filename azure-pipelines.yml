@@ -27,11 +27,11 @@ variables:
 
   # Ververica Platform
   vvpNamespace: 'default'
-  vvpDeploymentTarget: 'ff53f460-532c-4a41-ad91-00c20d8164ab'
+  vvpDeploymentTarget: '585e236d-20f6-49e0-a8fe-972943875afe'
   vvpJobJarPrefix: 'wiki-edits'
 
   # misc.
-  delayMinutes: 3
+  delayMinutes: 2
 
 stages:
 
@@ -108,9 +108,9 @@ stages:
         inputs:
           sourcePath: '$(build.artifactstagingdirectory)/artifacts' 
           azureSubscription: '$(azureSubscription)'
-          destination: azureBlob
-          storage: $(storageAccount)
-          containerName: $(blobContainer)
+          destination: 'AzureBlob'
+          storage: '$(storageAccount)'
+          containerName: '$(blobContainer)'
           BlobPrefix: 'artifacts/namespaces/$(vvpNamespace)'
 
 # Submit stage
@@ -143,11 +143,11 @@ stages:
             kubectlVersion: 1.15.0
 
         - task: AzureKeyVault@1
-          displayName: Get password
+          displayName: Get password & api token
           inputs:
             azureSubscription: '$(azureSubscription)'
             KeyVaultName: '$(keyVault)'
-            SecretsFilter: 'vvp-pipeline-demo-service-principal-password'
+            SecretsFilter: 'vvp-pipeline-demo-service-principal-password,vvp-pipeline-demo-api-token'
 
         # Here we download the artifact to get the artifactName
         - task: DownloadPipelineArtifact@2
@@ -179,6 +179,7 @@ stages:
 
         - script: |
             findDeploymentId=`curl -X GET "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
+            -H "Authorization: Bearer $(vvp-pipeline-demo-api-token)" \
             -H "accept: application/json" -s \
             | python -c '
             import sys, json
@@ -194,6 +195,7 @@ stages:
         - script: |
             echo "PATCH Deployment $(deploymentId)"
             curl -X PATCH "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments/$(deploymentId)" \
+            -H "Authorization: Bearer $(vvp-pipeline-demo-api-token)" \
             -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d '
             kind: Deployment
             apiVersion: v1
@@ -210,6 +212,7 @@ stages:
 
         - script: |
             curl -X POST "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
+            -H "Authorization: Bearer $(vvp-pipeline-demo-api-token)" \
             -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d "
             kind: Deployment
             apiVersion: v1
@@ -280,11 +283,11 @@ stages:
             kubectlVersion: 1.15.0
 
         - task: AzureKeyVault@1
-          displayName: Get password
+          displayName: Get password & api token
           inputs:
             azureSubscription: '$(azureSubscription)'
             KeyVaultName: '$(keyVault)'
-            SecretsFilter: 'vvp-pipeline-demo-service-principal-password'
+            SecretsFilter: 'vvp-pipeline-demo-service-principal-password,vvp-pipeline-demo-api-token'
         
         - script: |
             az login --service-principal -u $(servicePrincipal) \
@@ -304,6 +307,7 @@ stages:
 
         - script: |
             state=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" \
+            -H "Authorization: Bearer $(vvp-pipeline-demo-api-token)" \
             -H "accept: application/json" -s \
             | python -c '
             import sys, json
