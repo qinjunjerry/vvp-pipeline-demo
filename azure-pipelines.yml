@@ -27,7 +27,7 @@ variables:
 
   # Ververica Platform
   vvpNamespace: 'default'
-  vvpDeploymentTarget: '585e236d-20f6-49e0-a8fe-972943875afe'
+  vvpDeploymentTarget: '6232cc84-7aa3-4524-b3a8-36cab7203c47'
   vvpJobJarPrefix: 'wiki-edits'
 
   # misc.
