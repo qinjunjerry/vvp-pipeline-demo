@@ -138,7 +138,7 @@ stages:
           inputs:
             azureSubscription: '$(azureSubscription)'
             KeyVaultName: '$(keyVault)'
-            SecretsFilter: 'vvp-pipeline-demo-service-principal-password,vvp-pipeline-demo-api-token,vvpAPIToken'
+            SecretsFilter: 'vvp-pipeline-demo-service-principal-password,servicePrincipalKey,vvp-pipeline-demo-api-token,vvpAPIToken'
 
         # Here we download the artifact to get the artifactName
         - task: DownloadPipelineArtifact@2
@@ -239,37 +239,24 @@ stages:
           inputs:
             azureSubscription: '$(azureSubscription)'
             KeyVaultName: '$(keyVault)'
-            SecretsFilter: 'vvp-pipeline-demo-service-principal-password,vvp-pipeline-demo-api-token'
-        
-        - script: |
-            az login --service-principal -u $(servicePrincipal) \
-              -p $(vvp-pipeline-demo-service-principal-password) \
-              --tenant $(tenantId)
-          displayName: az login
+            SecretsFilter: 'vvp-pipeline-demo-service-principal-password,servicePrincipalKey,vvp-pipeline-demo-api-token,vvpAPIToken'
 
-        - script: |
-            az aks get-credentials --resource-group $(resourceGroup) \
-              --name $(kubernetesCluster)
-          displayName: Get cluster credential
+        - task: Bash@3
+          inputs:
+            filePath: 'src/main/resources/azure-pipeline/setup-local-access.sh'
+          env:
+            servicePrincipal: $(servicePrincipal)
+            servicePrincipalKey: $(vvp-pipeline-demo-service-principal-password)
+            tenantId: $(tenantId)
+            resourceGroup: $(resourceGroup)
+            kubernetesCluster: $(kubernetesCluster)
+            kubernetesNamespace: $(kubernetesNamespace)
+          displayName: Setup local access
 
-        - script: |
-            kubectl port-forward service/vvp-ververica-platform 8080:80 \
-              --namespace $(kubernetesNamespace) &
-          displayName: Port forward
-
-        - script: |
-            state=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" \
-            -H "Authorization: Bearer $(vvp-pipeline-demo-api-token)" \
-            -H "accept: application/json" -s \
-            | python -c '
-            import sys, json
-            j=json.loads(sys.stdin.read())
-            for i in j["items"]:
-                  if i["metadata"]["name"] == "$(vvpJobJarPrefix)-deployment":
-                          print i["status"]["state"]
-            '`
-            if [ "$state" != "RUNNING" ]; then
-                echo Job is still in state: $state
-                exit 1
-            fi
+        - task: Bash@3
+          inputs:
+            filePath: 'src/main/resources/azure-pipeline/check-deployment.sh'
+          env:
+            vvpAPIToken: $(vvpAPIToken)
+            vvpJobJarPrefix: $(vvpJobJarPrefix)
           displayName: Check job state
