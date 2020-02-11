@@ -216,6 +216,8 @@ stages:
             artifactName: $(artifactName)
             storageAccount: $(storageAccount)
             commitHash: $(commitHash)
+            vvpDeploymentTarget: $(vvpDeploymentTarget)
+            vvpJobJarPrefix: $(vvpJobJarPrefix)
           condition: and(succeeded(), eq(variables['deploymentId'], '') )
           displayName: POST deployment
 
