@@ -28,7 +28,7 @@ variables:
   # Ververica Platform
   vvpNamespace: 'default'
   vvpDeploymentTarget: '6232cc84-7aa3-4524-b3a8-36cab7203c47'
-  vvpJobJarPrefix: 'wiki-edits'
+  vvpJobJarPrefix: 'vvp-pipeline-demo'
 
   # misc.
   delayMinutes: 2
