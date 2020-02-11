@@ -203,14 +203,19 @@ stages:
             artifactName: $(artifactName)
             storageAccount: $(storageAccount)
             commitHash: $(commitHash)
-          #- script: vvp-pipeline-demo/src/main/resources/azure-pipeline/patch-deployment.sh
           condition: and(succeeded(), ne(variables['deploymentId'], '') )
           displayName: PATCH deployment
 
         - task: Bash@3
           inputs:
             filePath: 'src/main/resources/azure-pipeline/post-deployment.sh'
-          #- script: src/main/resources/azure-pipeline/post-deployment.sh
+          env:
+            vvpNamespace: $(vvpNamespace)
+            vvpAPIToken: $(vvpAPIToken)
+            blobContainer: $(blobContainer)
+            artifactName: $(artifactName)
+            storageAccount: $(storageAccount)
+            commitHash: $(commitHash)
           condition: and(succeeded(), eq(variables['deploymentId'], '') )
           displayName: POST deployment
 

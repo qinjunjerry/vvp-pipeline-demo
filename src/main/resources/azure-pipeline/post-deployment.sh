@@ -1,11 +1,11 @@
-curl -X POST "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
--H "Authorization: Bearer $(vvp-pipeline-demo-api-token)" \
--H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d "
+curl -X POST "http://localhost:8080/api/v1/namespaces/${vvpNamespace}/deployments" \
+    -H "Authorization: Bearer ${vvpAPIToken}" \
+    -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d "
 kind: Deployment
 apiVersion: v1
 metadata:
-  name: $(vvpJobJarPrefix)-deployment
-  namespace: $(vvpNamespace)
+  name: ${vvpJobJarPrefix}-deployment
+  namespace: ${vvpNamespace}
 spec:
   state: RUNNING
   upgradeStrategy:
@@ -13,7 +13,7 @@ spec:
   restoreStrategy:
     kind: LATEST_SAVEPOINT
     allowNonRestoredState: false
-  deploymentTargetId: $(vvpDeploymentTarget)
+  deploymentTargetId: ${vvpDeploymentTarget}
   template:
     metadata:
       annotations: {}
@@ -21,7 +21,7 @@ spec:
       artifact:
         kind: JAR
         jarUri: >-
-          wasbs://$(blobContainer)@$(storageAccount).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(artifactName)?commit=$(commitHash)
+          wasbs://${blobContainer}@${storageAccount}.blob.core.windows.net/artifacts/namespaces/${vvpNamespace}/${artifactName}?commit=${commitHash}
         flinkVersion: 1.9
         flinkImageRegistry: registry.platform.data-artisans.net/v2.0
         flinkImageRepository: flink
