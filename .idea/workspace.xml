@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="65711c20-8b87-4b3e-b327-0967c61ecce1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/resources/azure-pipeline/check-deployment.sh" afterDir="false" />
+    <list default="true" id="65711c20-8b87-4b3e-b327-0967c61ecce1" name="Default Changelist" comment="check-deployment.sh">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azure-pipelines.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/azure-pipeline/check-deployment.sh" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/azure-pipeline/check-deployment.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/azure-pipeline/setup-local-access.sh" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/azure-pipeline/setup-local-access.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -301,7 +301,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581438452301</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="check-deployment.sh">
+      <created>1581443789861</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1581443789861</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -339,6 +346,7 @@
     <MESSAGE value="Use also script file for post" />
     <MESSAGE value="add vvpJobJarPrefix, vvpDeploymentTarget to post" />
     <MESSAGE value="extract commitHash in script, set-local-access.sh" />
-    <option name="LAST_COMMIT_MESSAGE" value="extract commitHash in script, set-local-access.sh" />
+    <MESSAGE value="check-deployment.sh" />
+    <option name="LAST_COMMIT_MESSAGE" value="check-deployment.sh" />
   </component>
 </project>
