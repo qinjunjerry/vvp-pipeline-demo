@@ -1,5 +1,10 @@
-echo "PATCH Deployment ${deploymentId}"
-echo "hasCommit: ${commitHash}"
+echo deploymentId: ${deploymentId}
+echo vvpNamespace: ${vvpNamespace}
+echo vvp-pipeline-demo-api-token: ${vvp-pipeline-demo-api-token}
+echo blobContainer: ${blobContainer}
+echo artifactName: ${artifactName}
+echo storageAccount: ${storageAccount}
+echo commitHash: ${commitHash}
 
 echo curl -X PATCH "http://localhost:8080/api/v1/namespaces/${vvpNamespace}/deployments/${deploymentId}" \
     -H "Authorization: Bearer ${vvp-pipeline-demo-api-token}" \

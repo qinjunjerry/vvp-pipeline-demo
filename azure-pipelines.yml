@@ -201,6 +201,7 @@ stages:
             vvp-pipeline-demo-api-token: $(vvp-pipeline-demo-api-token)
             blobContainer: $(blobContainer)
             artifactName: $(artifactName)
+            storageAccount: $(storageAccount)
             commitHash: $(commitHash)
           #- script: vvp-pipeline-demo/src/main/resources/azure-pipeline/patch-deployment.sh
           condition: and(succeeded(), ne(variables['deploymentId'], '') )
