@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 echo "PATCH Deployment ${deploymentId}"
+echo "hasCommit: ${commitHash}"
+
 curl -X PATCH "http://localhost:8080/api/v1/namespaces/${vvpNamespace}/deployments/${deploymentId}" \
     -H "Authorization: Bearer ${vvp-pipeline-demo-api-token}" \
     -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d "
