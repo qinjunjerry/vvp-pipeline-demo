@@ -8,7 +8,7 @@ j=json.loads(sys.stdin.read())
 for i in j[\"items\"]:
       if i[\"metadata\"][\"name\"] == \"${vvpJobJarPrefix}-deployment\":
               print i[\"status\"][\"state\"]
-"
+"`
 
 if [ "$state" != "RUNNING" ]; then
     echo Job is still in state: \"$state\"
