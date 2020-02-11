@@ -128,15 +128,6 @@ stages:
 
       steps:
 
-        # extract commit hash
-        # We use the commit hash in jar URI when POST/PATCH a deployment in VVP, e.g.,
-        #     wasbs://...../job.jar?commit=e81c66d
-        # This way VVP will suspend & start the flink job upon a PATCH action
-        - bash: |
-            commit=`echo $(Build.SourceVersion) | cut -c 1-7`
-            echo "##vso[task.setvariable variable=commitHash]$commit"
-          name: extractCommitHash
-
         - task: KubectlInstaller@0
           displayName: Install kubectl
           inputs: 
@@ -160,22 +151,18 @@ stages:
             name=`cat $(build.artifactstagingdirectory)/variables/artifactName`
             echo "##vso[task.setvariable variable=artifactName]$name"
           displayName: Set artifactName  
-        
-        - script: |
-            az login --service-principal -u $(servicePrincipal) \
-              -p $(vvp-pipeline-demo-service-principal-password) \
-              --tenant $(tenantId)
-          displayName: az login
 
-        - script: |
-            az aks get-credentials --resource-group $(resourceGroup) \
-              --name $(kubernetesCluster)
-          displayName: Get cluster credential
-
-        - script: |
-            kubectl port-forward service/vvp-ververica-platform 8080:80 \
-              --namespace $(kubernetesNamespace) &
-          displayName: Port forward
+        - task: Bash@3
+          inputs:
+            filePath: 'src/main/resources/azure-pipeline/setup-local-access.sh'
+          env:
+            servicePrincipal: $(servicePrincipal)
+            servicePrincipalKey: $(vvp-pipeline-demo-service-principal-password)
+            tenantId: $(tenantId)
+            resourceGroup: $(resourceGroup)
+            kubernetesCluster: $(kubernetesCluster)
+            kubernetesNamespace: $(kubernetesNamespace)
+          displayName: Setup local access
 
         - script: |
             findDeploymentId=`curl -X GET "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
@@ -202,7 +189,7 @@ stages:
             blobContainer: $(blobContainer)
             artifactName: $(artifactName)
             storageAccount: $(storageAccount)
-            commitHash: $(commitHash)
+            buildVersion: $(Build.SourceVersion)
           condition: and(succeeded(), ne(variables['deploymentId'], '') )
           displayName: PATCH deployment
 
@@ -215,7 +202,7 @@ stages:
             blobContainer: $(blobContainer)
             artifactName: $(artifactName)
             storageAccount: $(storageAccount)
-            commitHash: $(commitHash)
+            buildVersion: $(Build.SourceVersion)
             vvpDeploymentTarget: $(vvpDeploymentTarget)
             vvpJobJarPrefix: $(vvpJobJarPrefix)
           condition: and(succeeded(), eq(variables['deploymentId'], '') )
