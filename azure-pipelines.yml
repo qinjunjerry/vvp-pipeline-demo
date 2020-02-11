@@ -192,7 +192,10 @@ stages:
           displayName: Check deployment
           name: CheckDeployment
 
-        - script: vvp-pipeline-demo/src/main/resources/azure-pipeline/patch-deployment.sh
+        - task: Bash@3
+          inputs:
+            filePath: 'vvp-pipeline-demo/src/main/resources/azure-pipeline/patch-deployment.sh'
+          #- script: vvp-pipeline-demo/src/main/resources/azure-pipeline/patch-deployment.sh
           condition: and(succeeded(), ne(variables['deploymentId'], '') )
           displayName: PATCH deployment
 
