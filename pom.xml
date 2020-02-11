@@ -20,13 +20,13 @@ under the License.
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>wiki-edits</groupId>
-	<artifactId>wiki-edits</artifactId>
+	<groupId>vvp-pipeline-demo</groupId>
+	<artifactId>vvp-pipeline-demo</artifactId>
 	<version>0.2</version>
 	<packaging>jar</packaging>
 
-	<name>Flink Quickstart Job</name>
-	<url>http://www.myorganization.org</url>
+	<name>vvp-pipeline-demo</name>
+	<url>http://www.ververica.com</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
