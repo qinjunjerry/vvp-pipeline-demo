@@ -164,7 +164,7 @@ stages:
         - script: |
             az login --service-principal -u $(servicePrincipal) \
               -p $(vvp-pipeline-demo-service-principal-password) \
-              --tenant $(tenantId)
+              --tenant $(tenantId) --allow-no-subscriptions
           displayName: az login
 
         - script: |
