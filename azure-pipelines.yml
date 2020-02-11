@@ -194,12 +194,15 @@ stages:
 
         - task: Bash@3
           inputs:
-            filePath: 'vvp-pipeline-demo/src/main/resources/azure-pipeline/patch-deployment.sh'
+            filePath: 'src/main/resources/azure-pipeline/patch-deployment.sh'
           #- script: vvp-pipeline-demo/src/main/resources/azure-pipeline/patch-deployment.sh
           condition: and(succeeded(), ne(variables['deploymentId'], '') )
           displayName: PATCH deployment
 
-        - script: vvp-pipeline-demo/src/main/resources/azure-pipeline/post-deployment.sh
+        - task: Bash@3
+          inputs:
+            filePath: 'src/main/resources/azure-pipeline/post-deployment.sh'
+          #- script: src/main/resources/azure-pipeline/post-deployment.sh
           condition: and(succeeded(), eq(variables['deploymentId'], '') )
           displayName: POST deployment
 
