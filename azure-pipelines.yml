@@ -195,6 +195,13 @@ stages:
         - task: Bash@3
           inputs:
             filePath: 'src/main/resources/azure-pipeline/patch-deployment.sh'
+          env:
+            deploymentId: $(deploymentId)
+            vvpNamespace: $(vvpNamespace)
+            vvp-pipeline-demo-api-token: $(vvp-pipeline-demo-api-token)
+            blobContainer: $(blobContainer)
+            artifactName: $(artifactName)
+            commitHash: $(commitHash)
           #- script: vvp-pipeline-demo/src/main/resources/azure-pipeline/patch-deployment.sh
           condition: and(succeeded(), ne(variables['deploymentId'], '') )
           displayName: PATCH deployment
