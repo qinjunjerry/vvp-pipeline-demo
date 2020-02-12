@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="65711c20-8b87-4b3e-b327-0967c61ecce1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+    <list default="true" id="65711c20-8b87-4b3e-b327-0967c61ecce1" name="Default Changelist" comment="change version to 0.1">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azure-pipelines.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines.yml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -346,7 +347,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581501968028</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="change version to 0.1">
+      <created>1581502391086</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1581502391086</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -363,7 +371,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Remove flink-client dependence" />
     <MESSAGE value="Refactoring" />
     <MESSAGE value="Add delay task and check job state" />
     <MESSAGE value="add Monitor stage" />
@@ -388,6 +395,7 @@
     <MESSAGE value="move scripts to azure-pipelines/" />
     <MESSAGE value="Add find-deployment-id.sh" />
     <MESSAGE value="exrtract-jar-filename.sh instead of upload jar filename as artifacts" />
-    <option name="LAST_COMMIT_MESSAGE" value="exrtract-jar-filename.sh instead of upload jar filename as artifacts" />
+    <MESSAGE value="change version to 0.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="change version to 0.1" />
   </component>
 </project>

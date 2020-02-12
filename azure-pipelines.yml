@@ -7,7 +7,7 @@ variables:
   azureSubscription: 'vvp-pipeline-service-connection'
 
   # Agent VM image name
-  # The depoly stage uses a Windows image which is required by AzureFileCopy@3 task
+  # Except the depoly stage which uses a Windows image as it is required by AzureFileCopy@3 task
   vmImageName: 'ubuntu-latest'
 
   # DEBUG
@@ -15,8 +15,7 @@ variables:
 
   # Azure resources
   resourceGroup: 'vvp-pipeline-demo'
-  servicePrincipal: 'http://vvp-pipeline-demo-service-principal'
-  tenantId: '2925ee25-3bd0-402a-88f1-69307e6a39f3'
+  servicePrincipal: 'http://vvp-pipeline-service-principal'
   keyVault: 'vvp-pipeline-keyvault'
   storageAccount: 'vvppipelinestorage'
   blobContainer: 'vvp-pipeline-container'
@@ -118,11 +117,11 @@ stages:
             kubectlVersion: 1.15.0
 
         - task: AzureKeyVault@1
-          displayName: Get password & api token
+          displayName: Get secrets
           inputs:
             azureSubscription: '$(azureSubscription)'
             KeyVaultName: '$(keyVault)'
-            SecretsFilter: 'servicePrincipalKey,vvpAPIToken'
+            SecretsFilter: 'servicePrincipalKey,vvpAPIToken,tenantId'
 
         - task: Bash@3
           inputs:
@@ -160,8 +159,8 @@ stages:
             deploymentId: $(deploymentId)
             vvpNamespace: $(vvpNamespace)
             vvpAPIToken: $(vvpAPIToken)
-            blobContainer: $(blobContainer)
             jarFileName: $(jarFileName)
+            blobContainer: $(blobContainer)
             storageAccount: $(storageAccount)
             buildVersion: $(Build.SourceVersion)
           condition: and(succeeded(), ne(variables['deploymentId'], '') )
@@ -173,12 +172,12 @@ stages:
           env:
             vvpNamespace: $(vvpNamespace)
             vvpAPIToken: $(vvpAPIToken)
-            blobContainer: $(blobContainer)
-            jarFileName: $(jarFileName)
-            storageAccount: $(storageAccount)
-            buildVersion: $(Build.SourceVersion)
             vvpDeploymentTarget: $(vvpDeploymentTarget)
             vvpJobJarPrefix: $(vvpJobJarPrefix)
+            jarFileName: $(jarFileName)
+            blobContainer: $(blobContainer)
+            storageAccount: $(storageAccount)
+            buildVersion: $(Build.SourceVersion)
           condition: and(succeeded(), eq(variables['deploymentId'], '') )
           displayName: POST deployment
 
@@ -195,12 +194,16 @@ stages:
       pool: server
  
       steps:
-        - task: Delay@1
+        - task: Delay@1  # requires 'pool: server'
           inputs:
             delayForMinutes: '$(delayMinutes)'
 
     - job: MonitorFlinkJob
       dependsOn: Delay
+
+      pool:
+        vmImage: $(vmImageName)
+
       steps:
 
         - task: KubectlInstaller@0
@@ -209,11 +212,11 @@ stages:
             kubectlVersion: 1.15.0
 
         - task: AzureKeyVault@1
-          displayName: Get password & api token
+          displayName: Get secrets
           inputs:
             azureSubscription: '$(azureSubscription)'
             KeyVaultName: '$(keyVault)'
-            SecretsFilter: 'servicePrincipalKey,vvpAPIToken'
+            SecretsFilter: 'servicePrincipalKey,vvpAPIToken,tenantId'
 
         - task: Bash@3
           inputs:
