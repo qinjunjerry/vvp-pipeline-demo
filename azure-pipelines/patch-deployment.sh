@@ -15,5 +15,5 @@ spec:
     spec:
       artifact:
         jarUri: >-
-          wasbs://${blobContainer}@${storageAccount}.blob.core.windows.net/artifacts/namespaces/${vvpNamespace}/${artifactName}?commit=${commitHash}
+          wasbs://${blobContainer}@${storageAccount}.blob.core.windows.net/artifacts/namespaces/${vvpNamespace}/${jarFileName}?commit=${commitHash}
 "

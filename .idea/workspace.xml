@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="65711c20-8b87-4b3e-b327-0967c61ecce1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/azure-pipelines/find-deployment-id.sh" afterDir="false" />
+    <list default="true" id="65711c20-8b87-4b3e-b327-0967c61ecce1" name="Default Changelist" comment="Add find-deployment-id.sh">
+      <change afterPath="$PROJECT_DIR$/azure-pipelines/extract-jar-filename.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/azure-pipelines.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azure-pipelines/patch-deployment.sh" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines/patch-deployment.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azure-pipelines/post-deployment.sh" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines/post-deployment.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -334,7 +336,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581497981480</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Add find-deployment-id.sh">
+      <created>1581498864247</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1581498864247</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -375,6 +384,7 @@
     <MESSAGE value="check-deployment.sh" />
     <MESSAGE value="quotes fix in check-deployment.sh" />
     <MESSAGE value="move scripts to azure-pipelines/" />
-    <option name="LAST_COMMIT_MESSAGE" value="move scripts to azure-pipelines/" />
+    <MESSAGE value="Add find-deployment-id.sh" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add find-deployment-id.sh" />
   </component>
 </project>

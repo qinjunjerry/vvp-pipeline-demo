@@ -27,7 +27,7 @@ spec:
       artifact:
         kind: JAR
         jarUri: >-
-          wasbs://${blobContainer}@${storageAccount}.blob.core.windows.net/artifacts/namespaces/${vvpNamespace}/${artifactName}?commit=${commitHash}
+          wasbs://${blobContainer}@${storageAccount}.blob.core.windows.net/artifacts/namespaces/${vvpNamespace}/${jarFileName}?commit=${commitHash}
         flinkVersion: 1.9
         flinkImageRegistry: registry.platform.data-artisans.net/v2.0
         flinkImageRepository: flink

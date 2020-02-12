@@ -65,22 +65,6 @@ stages:
         targetPath: '$(build.artifactstagingdirectory)/artifacts'
         artifactName: JobJar
 
-    # Passing variables cross stages is not supported in Azure Pipeline as of now
-    # As a workaround: we publish it as an artifact then use it in another stage
-    # This is based on Alessandro Segal's blog post:
-    # https://medium.com/microsoftazure/how-to-pass-variables-in-azure-pipelines-yaml-tasks-5c81c5d31763
-    - bash: |
-        mkdir -p $(build.artifactstagingdirectory)/variables
-        cd $(build.artifactstagingdirectory)/variables
-        basename $(build.artifactstagingdirectory)/artifacts/$(vvpJobJarPrefix)-*.jar > artifactName
-      displayName: Save variables
-
-    - task: PublishPipelineArtifact@1
-      displayName: Publish variables
-      inputs:
-        targetPath: '$(build.artifactstagingdirectory)/variables'
-        artifactName: variables
-
 # Deploy stage
 - stage: Deploy
   displayName: Deploy stage
@@ -140,18 +124,6 @@ stages:
             KeyVaultName: '$(keyVault)'
             SecretsFilter: 'servicePrincipalKey,vvpAPIToken'
 
-        # Here we download the artifact to get the artifactName
-        - task: DownloadPipelineArtifact@2
-          displayName: Download variables
-          inputs:
-            artifact: 'variables'
-            downloadPath: '$(build.artifactstagingdirectory)/variables' 
-
-        - bash: |
-            name=`cat $(build.artifactstagingdirectory)/variables/artifactName`
-            echo "##vso[task.setvariable variable=artifactName]$name"
-          displayName: Set artifactName  
-
         - task: Bash@3
           inputs:
             filePath: 'azure-pipelines/setup-local-access.sh'
@@ -163,6 +135,13 @@ stages:
             kubernetesCluster: $(kubernetesCluster)
             kubernetesNamespace: $(kubernetesNamespace)
           displayName: Setup local access
+
+        - task: Bash@3
+          inputs:
+            # this sets the 'jarFileName' variable
+            filePath: 'azure-pipelines/extract-jar-filename.sh'
+          displayName: Extract jar filename
+
 
         - task: Bash@3
           inputs:
@@ -182,7 +161,7 @@ stages:
             vvpNamespace: $(vvpNamespace)
             vvpAPIToken: $(vvpAPIToken)
             blobContainer: $(blobContainer)
-            artifactName: $(artifactName)
+            jarFileName: $(jarFileName)
             storageAccount: $(storageAccount)
             buildVersion: $(Build.SourceVersion)
           condition: and(succeeded(), ne(variables['deploymentId'], '') )
@@ -195,7 +174,7 @@ stages:
             vvpNamespace: $(vvpNamespace)
             vvpAPIToken: $(vvpAPIToken)
             blobContainer: $(blobContainer)
-            artifactName: $(artifactName)
+            jarFileName: $(jarFileName)
             storageAccount: $(storageAccount)
             buildVersion: $(Build.SourceVersion)
             vvpDeploymentTarget: $(vvpDeploymentTarget)
