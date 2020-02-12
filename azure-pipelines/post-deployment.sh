@@ -35,11 +35,11 @@ spec:
       parallelism: 1
       resources:
         jobmanager:
-          cpu: 1
+          cpu: 0.5
           memory: 1G
         taskmanager:
           cpu: 1
-          memory: 2G
+          memory: 1G
       flinkConfiguration: {}
       logging:
         log4jLoggers: {}
