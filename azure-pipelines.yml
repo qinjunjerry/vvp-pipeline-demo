@@ -138,7 +138,7 @@ stages:
           inputs:
             azureSubscription: '$(azureSubscription)'
             KeyVaultName: '$(keyVault)'
-            SecretsFilter: 'vvp-pipeline-demo-service-principal-password,servicePrincipalKey,vvp-pipeline-demo-api-token,vvpAPIToken'
+            SecretsFilter: 'servicePrincipalKey,vvpAPIToken'
 
         # Here we download the artifact to get the artifactName
         - task: DownloadPipelineArtifact@2
@@ -154,10 +154,10 @@ stages:
 
         - task: Bash@3
           inputs:
-            filePath: 'src/main/resources/azure-pipeline/setup-local-access.sh'
+            filePath: 'azure-pipelines/setup-local-access.sh'
           env:
             servicePrincipal: $(servicePrincipal)
-            servicePrincipalKey: $(vvp-pipeline-demo-service-principal-password)
+            servicePrincipalKey: $(servicePrincipalKey)
             tenantId: $(tenantId)
             resourceGroup: $(resourceGroup)
             kubernetesCluster: $(kubernetesCluster)
@@ -166,7 +166,7 @@ stages:
 
         - script: |
             findDeploymentId=`curl -X GET "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
-            -H "Authorization: Bearer $(vvp-pipeline-demo-api-token)" \
+            -H "Authorization: Bearer $(vvpAPIToken)" \
             -H "accept: application/json" -s \
             | python -c '
             import sys, json
@@ -181,7 +181,7 @@ stages:
 
         - task: Bash@3
           inputs:
-            filePath: 'src/main/resources/azure-pipeline/patch-deployment.sh'
+            filePath: 'azure-pipelines/patch-deployment.sh'
           env:
             deploymentId: $(deploymentId)
             vvpNamespace: $(vvpNamespace)
@@ -195,7 +195,7 @@ stages:
 
         - task: Bash@3
           inputs:
-            filePath: 'src/main/resources/azure-pipeline/post-deployment.sh'
+            filePath: 'azure-pipelines/post-deployment.sh'
           env:
             vvpNamespace: $(vvpNamespace)
             vvpAPIToken: $(vvpAPIToken)
@@ -239,14 +239,14 @@ stages:
           inputs:
             azureSubscription: '$(azureSubscription)'
             KeyVaultName: '$(keyVault)'
-            SecretsFilter: 'vvp-pipeline-demo-service-principal-password,servicePrincipalKey,vvp-pipeline-demo-api-token,vvpAPIToken'
+            SecretsFilter: 'servicePrincipalKey,vvpAPIToken'
 
         - task: Bash@3
           inputs:
-            filePath: 'src/main/resources/azure-pipeline/setup-local-access.sh'
+            filePath: 'azure-pipelines/setup-local-access.sh'
           env:
             servicePrincipal: $(servicePrincipal)
-            servicePrincipalKey: $(vvp-pipeline-demo-service-principal-password)
+            servicePrincipalKey: $(servicePrincipalKey)
             tenantId: $(tenantId)
             resourceGroup: $(resourceGroup)
             kubernetesCluster: $(kubernetesCluster)
@@ -255,7 +255,7 @@ stages:
 
         - task: Bash@3
           inputs:
-            filePath: 'src/main/resources/azure-pipeline/check-deployment.sh'
+            filePath: 'azure-pipelines/check-deployment.sh'
           env:
             vvpAPIToken: $(vvpAPIToken)
             vvpJobJarPrefix: $(vvpJobJarPrefix)
