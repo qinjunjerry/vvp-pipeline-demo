@@ -368,7 +368,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581513562815</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="remove quotes from Contents">
+      <created>1581514011405</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1581514011405</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -385,7 +392,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add Monitor stage" />
     <MESSAGE value="Change version to 0.2" />
     <MESSAGE value="test elasticsearch6 connector" />
     <MESSAGE value="Exclude log4j-to-slf4j" />
@@ -410,6 +416,7 @@
     <MESSAGE value="change version to 0.1" />
     <MESSAGE value="vvp-pipeline-service-principal, etc." />
     <MESSAGE value="call extract-artifact-info.sh from other scripts" />
-    <option name="LAST_COMMIT_MESSAGE" value="call extract-artifact-info.sh from other scripts" />
+    <MESSAGE value="remove quotes from Contents" />
+    <option name="LAST_COMMIT_MESSAGE" value="remove quotes from Contents" />
   </component>
 </project>
