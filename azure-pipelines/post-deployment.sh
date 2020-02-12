@@ -1,3 +1,6 @@
+# extract artifactId and version from pom.xml
+source `dirname $0`/extract-artifact-info.sh
+
 # extract commit hash
 # We use the commit hash in jar URI when POST/PATCH a deployment in VVP, e.g.,
 #     wasbs://...../job.jar?commit=e81c66d
@@ -10,7 +13,7 @@ curl -X POST "http://localhost:8080/api/v1/namespaces/${vvpNamespace}/deployment
 kind: Deployment
 apiVersion: v1
 metadata:
-  name: ${vvpJobJarPrefix}-deployment
+  name: ${artifactId}-deployment
   namespace: ${vvpNamespace}
 spec:
   state: RUNNING

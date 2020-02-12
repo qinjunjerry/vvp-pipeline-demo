@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="65711c20-8b87-4b3e-b327-0967c61ecce1" name="Default Changelist" comment="change version to 0.1">
+    <list default="true" id="65711c20-8b87-4b3e-b327-0967c61ecce1" name="Default Changelist" comment="vvp-pipeline-service-principal, etc.">
+      <change afterPath="$PROJECT_DIR$/azure-pipelines/extract-artifact-info.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/azure-pipelines.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azure-pipelines/check-deployment.sh" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines/check-deployment.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azure-pipelines/extract-jar-filename.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/azure-pipelines/find-deployment-id.sh" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines/find-deployment-id.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azure-pipelines/patch-deployment.sh" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines/patch-deployment.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azure-pipelines/post-deployment.sh" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines/post-deployment.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -354,7 +360,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581502391086</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="vvp-pipeline-service-principal, etc.">
+      <created>1581504558718</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1581504558718</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -371,7 +384,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Refactoring" />
     <MESSAGE value="Add delay task and check job state" />
     <MESSAGE value="add Monitor stage" />
     <MESSAGE value="Change version to 0.2" />
@@ -396,6 +408,7 @@
     <MESSAGE value="Add find-deployment-id.sh" />
     <MESSAGE value="exrtract-jar-filename.sh instead of upload jar filename as artifacts" />
     <MESSAGE value="change version to 0.1" />
-    <option name="LAST_COMMIT_MESSAGE" value="change version to 0.1" />
+    <MESSAGE value="vvp-pipeline-service-principal, etc." />
+    <option name="LAST_COMMIT_MESSAGE" value="vvp-pipeline-service-principal, etc." />
   </component>
 </project>

@@ -1,3 +1,5 @@
+# extract artifactId and version from pom.xml
+source `dirname $0`/extract-artifact-info.sh
 
 state=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments" \
 -H "Authorization: Bearer ${vvpAPIToken}" \
@@ -6,7 +8,7 @@ state=`curl -X GET "http://localhost:8080/api/v1/namespaces/default/deployments"
 import sys, json
 j=json.loads(sys.stdin.read())
 for i in j[\"items\"]:
-      if i[\"metadata\"][\"name\"] == \"${vvpJobJarPrefix}-deployment\":
+      if i[\"metadata\"][\"name\"] == \"${artifactId}-deployment\":
               print i[\"status\"][\"state\"]
 "`
 

@@ -27,7 +27,6 @@ variables:
   # Ververica Platform
   vvpNamespace: 'default'
   vvpDeploymentTarget: '6232cc84-7aa3-4524-b3a8-36cab7203c47'
-  vvpJobJarPrefix: 'vvp-pipeline-demo'
 
   # misc.
   delayMinutes: 2
@@ -55,7 +54,9 @@ stages:
       displayName: Stage artifacts
       inputs:
         SourceFolder: 'target'
-        Contents: '$(vvpJobJarPrefix)-*.jar'
+        Contents: |
+          '*.jar'
+          '!original-*.jar'
         TargetFolder: '$(build.artifactstagingdirectory)/artifacts'
 
     - task: PublishPipelineArtifact@1
@@ -137,19 +138,12 @@ stages:
 
         - task: Bash@3
           inputs:
-            # this sets the 'jarFileName' variable
-            filePath: 'azure-pipelines/extract-jar-filename.sh'
-          displayName: Extract jar filename
-
-
-        - task: Bash@3
-          inputs:
             # this sets the 'deploymentId' variable
             filePath: 'azure-pipelines/find-deployment-id.sh'
           env:
             vvpNamespace: $(vvpNamespace)
             vvpAPIToken: $(vvpAPIToken)
-            vvpJobJarPrefix: $(vvpJobJarPrefix)
+            artifactId: $(artifactId)
           displayName: Check deployment
 
         - task: Bash@3
@@ -173,7 +167,7 @@ stages:
             vvpNamespace: $(vvpNamespace)
             vvpAPIToken: $(vvpAPIToken)
             vvpDeploymentTarget: $(vvpDeploymentTarget)
-            vvpJobJarPrefix: $(vvpJobJarPrefix)
+            artifactId: $(artifactId)
             jarFileName: $(jarFileName)
             blobContainer: $(blobContainer)
             storageAccount: $(storageAccount)
@@ -235,5 +229,5 @@ stages:
             filePath: 'azure-pipelines/check-deployment.sh'
           env:
             vvpAPIToken: $(vvpAPIToken)
-            vvpJobJarPrefix: $(vvpJobJarPrefix)
+            artifactId: $(artifactId)
           displayName: Check job state
