@@ -55,8 +55,8 @@ stages:
       inputs:
         SourceFolder: 'target'
         Contents: |
-          '*.jar'
-          '!original-*.jar'
+          *.jar
+          !original-*.jar
         TargetFolder: '$(build.artifactstagingdirectory)/artifacts'
 
     - task: PublishPipelineArtifact@1
