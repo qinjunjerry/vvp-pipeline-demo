@@ -164,20 +164,15 @@ stages:
             kubernetesNamespace: $(kubernetesNamespace)
           displayName: Setup local access
 
-        - script: |
-            findDeploymentId=`curl -X GET "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
-            -H "Authorization: Bearer $(vvpAPIToken)" \
-            -H "accept: application/json" -s \
-            | python -c '
-            import sys, json
-            j=json.loads(sys.stdin.read())
-            for i in j["items"]:
-              if i["metadata"]["name"] == "$(vvpJobJarPrefix)-deployment":
-                print i["metadata"]["id"]
-            '`
-            echo "##vso[task.setvariable variable=deploymentId]$findDeploymentId"
+        - task: Bash@3
+          inputs:
+            # this sets the 'deploymentId' variable
+            filePath: 'azure-pipelines/find-deployment-id.sh'
+          env:
+            vvpNamespace: $(vvpNamespace)
+            vvpAPIToken: $(vvpAPIToken)
+            vvpJobJarPrefix: $(vvpJobJarPrefix)
           displayName: Check deployment
-          name: CheckDeployment
 
         - task: Bash@3
           inputs:
