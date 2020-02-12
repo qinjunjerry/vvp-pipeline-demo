@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="65711c20-8b87-4b3e-b327-0967c61ecce1" name="Default Changelist" comment="Add find-deployment-id.sh">
-      <change afterPath="$PROJECT_DIR$/azure-pipelines/extract-jar-filename.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azure-pipelines.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azure-pipelines/patch-deployment.sh" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines/patch-deployment.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azure-pipelines/post-deployment.sh" beforeDir="false" afterPath="$PROJECT_DIR$/azure-pipelines/post-deployment.sh" afterDir="false" />
+    <list default="true" id="65711c20-8b87-4b3e-b327-0967c61ecce1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -343,7 +339,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581498864247</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="exrtract-jar-filename.sh instead of upload jar filename as artifacts">
+      <created>1581501968028</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1581501968028</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -360,7 +363,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Add flink-runtime dependences into provided scope" />
     <MESSAGE value="Remove flink-client dependence" />
     <MESSAGE value="Refactoring" />
     <MESSAGE value="Add delay task and check job state" />
@@ -385,6 +387,7 @@
     <MESSAGE value="quotes fix in check-deployment.sh" />
     <MESSAGE value="move scripts to azure-pipelines/" />
     <MESSAGE value="Add find-deployment-id.sh" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add find-deployment-id.sh" />
+    <MESSAGE value="exrtract-jar-filename.sh instead of upload jar filename as artifacts" />
+    <option name="LAST_COMMIT_MESSAGE" value="exrtract-jar-filename.sh instead of upload jar filename as artifacts" />
   </component>
 </project>
