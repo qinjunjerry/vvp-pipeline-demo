@@ -1,8 +1,8 @@
 resources:
   repositories:
-    - repository: vvp-pipeline-scripts
-      type: github
-      name: qinjunjerry/vvp-pipeline-scripts
+    - repository: 'vvp-pipeline-scripts'
+      type: 'github'
+      name: 'qinjunjerry/vvp-pipeline-scripts'
       endpoint: 'vvp-pipeline-scripts-service-connection'
 
 trigger:
@@ -141,7 +141,7 @@ stages:
 
         - task: Bash@3
           inputs:
-            filePath: '../vvp-pipeline-scripts/setup-local-vvp-access.sh'
+            filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
           env:
             servicePrincipal: $(servicePrincipal)
             servicePrincipalKey: $(servicePrincipalKey)
@@ -154,7 +154,7 @@ stages:
         - task: Bash@3
           inputs:
             # this sets the 'deploymentId' variable
-            filePath: '../vvp-pipeline-scripts/search-deployment-id.sh'
+            filePath: 'vvp-pipeline-scripts/search-deployment-id.sh'
           env:
             vvpNamespace: $(vvpNamespace)
             vvpAPIToken: $(vvpAPIToken)
@@ -163,7 +163,7 @@ stages:
 
         - task: Bash@3
           inputs:
-            filePath: '../vvp-pipeline-scripts/update-existing-deployment.sh'
+            filePath: 'vvp-pipeline-scripts/update-existing-deployment.sh'
           env:
             deploymentId: $(deploymentId)
             vvpNamespace: $(vvpNamespace)
@@ -177,7 +177,7 @@ stages:
 
         - task: Bash@3
           inputs:
-            filePath: '../vvp-pipeline-scripts/create-new-deployment.sh'
+            filePath: 'vvp-pipeline-scripts/create-new-deployment.sh'
           env:
             vvpNamespace: $(vvpNamespace)
             vvpAPIToken: $(vvpAPIToken)
@@ -235,7 +235,7 @@ stages:
 
         - task: Bash@3
           inputs:
-            filePath: '../vvp-pipeline-scripts/setup-local-vvp-access.sh'
+            filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
           env:
             servicePrincipal: $(servicePrincipal)
             servicePrincipalKey: $(servicePrincipalKey)
@@ -247,7 +247,7 @@ stages:
 
         - task: Bash@3
           inputs:
-            filePath: '../vvp-pipeline-scripts/check-deployment-state.sh'
+            filePath: 'vvp-pipeline-scripts/check-deployment-state.sh'
           env:
             vvpAPIToken: $(vvpAPIToken)
             artifactId: $(artifactId)
