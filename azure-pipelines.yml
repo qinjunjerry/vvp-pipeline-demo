@@ -3,7 +3,7 @@ resources:
     - repository: vvp-pipeline-scripts
       type: github
       name: qinjunjerry/vvp-pipeline-scripts.git
-      endpoint: qinjunjerry
+      endpoint: qinjunjerry (1)
 
 trigger:
 - master
