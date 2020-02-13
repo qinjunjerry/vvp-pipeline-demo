@@ -159,6 +159,7 @@ stages:
             vvpNamespace: $(vvpNamespace)
             vvpAPIToken: $(vvpAPIToken)
             artifactId: $(artifactId)
+            repoName: $(Build.Repository.Name)
           displayName: Check deployment
 
         - task: Bash@3
@@ -172,6 +173,7 @@ stages:
             blobContainer: $(blobContainer)
             storageAccount: $(storageAccount)
             buildVersion: $(Build.SourceVersion)
+            repoName: $(Build.Repository.Name)
           condition: and(succeeded(), ne(variables['deploymentId'], '') )
           displayName: PATCH deployment
 
@@ -187,6 +189,7 @@ stages:
             blobContainer: $(blobContainer)
             storageAccount: $(storageAccount)
             buildVersion: $(Build.SourceVersion)
+            repoName: $(Build.Repository.Name)
           condition: and(succeeded(), eq(variables['deploymentId'], '') )
           displayName: POST deployment
 
@@ -251,4 +254,5 @@ stages:
           env:
             vvpAPIToken: $(vvpAPIToken)
             artifactId: $(artifactId)
+            repoName: $(Build.Repository.Name)
           displayName: Check job state

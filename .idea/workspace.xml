@@ -424,7 +424,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581604973387</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="correct script path">
+      <created>1581605933800</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1581605933800</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -441,7 +448,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="vvp-pipeline-demo/src/main/resources/azure-pipeline/patch-deployment.sh" />
     <MESSAGE value="change to bach env variables" />
     <MESSAGE value="add echo ${commitHash}" />
     <MESSAGE value="add echo curl" />
@@ -466,6 +472,7 @@
     <MESSAGE value="use service connection 'vvp-pipeline-scripts-service-connection'" />
     <MESSAGE value="remove .git from repo name" />
     <MESSAGE value="add checkout self and adjust script path" />
-    <option name="LAST_COMMIT_MESSAGE" value="add checkout self and adjust script path" />
+    <MESSAGE value="correct script path" />
+    <option name="LAST_COMMIT_MESSAGE" value="correct script path" />
   </component>
 </project>
