@@ -375,7 +375,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581514011405</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Wait for 1 min">
+      <created>1581514494843</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1581514494843</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -392,7 +399,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Change version to 0.2" />
     <MESSAGE value="test elasticsearch6 connector" />
     <MESSAGE value="Exclude log4j-to-slf4j" />
     <MESSAGE value="Remove flink-connector-elasticsearch6" />
@@ -417,6 +423,7 @@
     <MESSAGE value="vvp-pipeline-service-principal, etc." />
     <MESSAGE value="call extract-artifact-info.sh from other scripts" />
     <MESSAGE value="remove quotes from Contents" />
-    <option name="LAST_COMMIT_MESSAGE" value="remove quotes from Contents" />
+    <MESSAGE value="Wait for 1 min" />
+    <option name="LAST_COMMIT_MESSAGE" value="Wait for 1 min" />
   </component>
 </project>
