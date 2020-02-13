@@ -402,7 +402,14 @@
       <option name="project" value="LOCAL" />
       <updated>1581604078014</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="use service connection 'vvp-pipeline-scripts-service-connection'">
+      <created>1581604222244</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1581604222244</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -419,7 +426,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Add flink-connector-elasticsearch6" />
     <MESSAGE value="Rename module to vvp-pipeline-demo" />
     <MESSAGE value="vvp-pipeline-demo/src/main/resources/azure-pipeline/post-deployment.sh" />
     <MESSAGE value="vvp-pipeline-demo/src/main/resources/azure-pipeline/patch-deployment.sh" />
@@ -444,6 +450,7 @@
     <MESSAGE value="Use scripts from another repo" />
     <MESSAGE value="use service connection qinjunjerry (1)" />
     <MESSAGE value="use service connection vvp-pipeline-scripts-service-connection" />
-    <option name="LAST_COMMIT_MESSAGE" value="use service connection vvp-pipeline-scripts-service-connection" />
+    <MESSAGE value="use service connection 'vvp-pipeline-scripts-service-connection'" />
+    <option name="LAST_COMMIT_MESSAGE" value="use service connection 'vvp-pipeline-scripts-service-connection'" />
   </component>
 </project>
