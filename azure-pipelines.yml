@@ -81,7 +81,7 @@ stages:
     displayName: Package and publish
 
     pool:
-      vmImage: $(vmImageName)
+      vmImage: 'windows-latest'
 
     steps:
     - task: Maven@3
@@ -89,48 +89,51 @@ stages:
       inputs:
         mavenPomFile: 'pom.xml'
 
-    - task: CopyFiles@2
-      displayName: Stage artifacts
-      inputs:
-        SourceFolder: 'target'
-        Contents: |
-          *.jar
-          !original-*.jar
-        TargetFolder: '$(build.artifactstagingdirectory)/artifacts'
+#     - task: CopyFiles@2
+#       displayName: Stage artifacts
+#       inputs:
+#         SourceFolder: 'target'
+#         Contents: |
+#           *.jar
+#           !original-*.jar
+#         TargetFolder: '$(build.artifactstagingdirectory)/artifacts'
 
-    - task: PublishPipelineArtifact@1
-      displayName: Publish artifacts
-      inputs:
-        targetPath: '$(build.artifactstagingdirectory)/artifacts'
-        artifactName: JobJar
+#     - task: PublishPipelineArtifact@1
+#       displayName: Publish artifacts
+#       inputs:
+#         targetPath: '$(build.artifactstagingdirectory)/artifacts'
+#         artifactName: JobJar
 
-# Deploy stage
-- stage: Deploy
-  displayName: Deploy stage
-  dependsOn: Build
-  condition: succeeded()
+# # Deploy stage
+# - stage: Deploy
+#   displayName: Deploy stage
+#   dependsOn: Build
+#   condition: succeeded()
 
-  jobs:
-    - job: DownloadAndDeploy
-      displayName: Download and deploy
+#   jobs:
+#     - job: DownloadAndDeploy
+#       displayName: Download and deploy
 
-      # We use a windows image here because AzureFileCopy@3 runs only on Windows
-      pool:
-        vmImage: 'windows-latest'
+#       # We use a windows image here because AzureFileCopy@3 runs only on Windows
+#       pool:
+#         vmImage: 'windows-latest'
 
-      steps:
-      - checkout: none
+#       steps:
+#       - checkout: none
 
-      - task: DownloadPipelineArtifact@2
-        displayName: Download artifacts
-        inputs:
-          artifact: 'JobJar'
-          downloadPath: '$(build.artifactstagingdirectory)/artifacts'
+#       - task: DownloadPipelineArtifact@2
+#         displayName: Download artifacts
+#         inputs:
+#           artifact: 'JobJar'
+#           downloadPath: '$(build.artifactstagingdirectory)/artifacts'
 
       - task: AzureFileCopy@3
         displayName: Deploy to blob storage
         inputs:
-          sourcePath: '$(build.artifactstagingdirectory)/artifacts'
+          sourcePath: 'target'
+          additionalArgumentsForBlobCopy: |
+            '/Pattern:*.jar'
+            '/Pattern:!original-*.jar'
           azureSubscription: '$(azureSubscription)'
           destination: 'AzureBlob'
           storage: '$(storageAccount)'
