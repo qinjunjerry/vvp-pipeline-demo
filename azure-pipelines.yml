@@ -131,9 +131,7 @@ stages:
       displayName: Deploy to blob storage
       inputs:
         sourcePath: 'target'
-        additionalArgumentsForBlobCopy: |
-          '/Pattern:*.jar'
-          '/Pattern:!original-*.jar'
+        additionalArgumentsForBlobCopy: '--include-pattern *.jar --exclude-pattern original-*.jar'
         azureSubscription: '$(azureSubscription)'
         destination: 'AzureBlob'
         storage: '$(storageAccount)'
