@@ -204,6 +204,7 @@ stages:
             storageAccount: $(storageAccount)
             buildVersion: $(Build.SourceVersion)
             repoName: $(Build.Repository.Name)
+            vvpDeploymentConf: $(vvpDeploymentConf)
           condition: and(succeeded(), ne(variables['deploymentId'], '') )
           displayName: PATCH deployment
 
