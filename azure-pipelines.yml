@@ -89,20 +89,20 @@ stages:
       inputs:
         mavenPomFile: 'pom.xml'
 
-#     - task: CopyFiles@2
-#       displayName: Stage artifacts
-#       inputs:
-#         SourceFolder: 'target'
-#         Contents: |
-#           *.jar
-#           !original-*.jar
-#         TargetFolder: '$(build.artifactstagingdirectory)/artifacts'
+    - task: CopyFiles@2
+      displayName: Stage artifacts
+      inputs:
+        SourceFolder: 'target'
+        Contents: |
+          *.jar
+          !original-*.jar
+        TargetFolder: '$(build.artifactstagingdirectory)/artifacts'
 
-#     - task: PublishPipelineArtifact@1
-#       displayName: Publish artifacts
-#       inputs:
-#         targetPath: '$(build.artifactstagingdirectory)/artifacts'
-#         artifactName: JobJar
+    # - task: PublishPipelineArtifact@1
+    #   displayName: Publish artifacts
+    #   inputs:
+    #     targetPath: '$(build.artifactstagingdirectory)/artifacts'
+    #     artifactName: JobJar
 
 # # Deploy stage
 # - stage: Deploy
@@ -130,8 +130,7 @@ stages:
     - task: AzureFileCopy@3
       displayName: Deploy to blob storage
       inputs:
-        sourcePath: 'target'
-        additionalArgumentsForBlobCopy: '/Pattern:*.jar;!original-*.jar'
+        sourcePath: '$(build.artifactstagingdirectory)/artifacts'
         azureSubscription: '$(azureSubscription)'
         destination: 'AzureBlob'
         storage: '$(storageAccount)'
