@@ -127,18 +127,18 @@ stages:
 #           artifact: 'JobJar'
 #           downloadPath: '$(build.artifactstagingdirectory)/artifacts'
 
-      - task: AzureFileCopy@3
-        displayName: Deploy to blob storage
-        inputs:
-          sourcePath: 'target'
-          additionalArgumentsForBlobCopy: |
-            '/Pattern:*.jar'
-            '/Pattern:!original-*.jar'
-          azureSubscription: '$(azureSubscription)'
-          destination: 'AzureBlob'
-          storage: '$(storageAccount)'
-          containerName: '$(blobContainer)'
-          BlobPrefix: 'artifacts/namespaces/$(vvpNamespace)'
+    - task: AzureFileCopy@3
+      displayName: Deploy to blob storage
+      inputs:
+        sourcePath: 'target'
+        additionalArgumentsForBlobCopy: |
+          '/Pattern:*.jar'
+          '/Pattern:!original-*.jar'
+        azureSubscription: '$(azureSubscription)'
+        destination: 'AzureBlob'
+        storage: '$(storageAccount)'
+        containerName: '$(blobContainer)'
+        BlobPrefix: 'artifacts/namespaces/$(vvpNamespace)'
 
 # Submit stage
 - stage: Submit
@@ -147,87 +147,87 @@ stages:
   condition: succeeded()
 
   jobs:
-    - job: SubmitFlinkJob
-      displayName: Submit flink job
+  - job: SubmitFlinkJob
+    displayName: Submit flink job
 
-      pool:
-        vmImage: $(vmImageName)
+    pool:
+      vmImage: $(vmImageName)
 
-      steps:
-        - checkout: self
-          displayName: Checkout self
+    steps:
+    - checkout: self
+      displayName: Checkout self
 
-        - checkout: vvp-pipeline-scripts
-          displayName: Checkout scripts
+    - checkout: vvp-pipeline-scripts
+      displayName: Checkout scripts
 
-        - task: KubectlInstaller@0
-          displayName: Install kubectl
-          inputs:
-            kubectlVersion: 1.15.0
+    - task: KubectlInstaller@0
+      displayName: Install kubectl
+      inputs:
+        kubectlVersion: 1.15.0
 
-        - task: AzureKeyVault@1
-          displayName: Get secrets
-          inputs:
-            azureSubscription: '$(azureSubscription)'
-            KeyVaultName: '$(keyVault)'
-            SecretsFilter: 'servicePrincipalKey,vvpAPIToken,tenantId'
+    - task: AzureKeyVault@1
+      displayName: Get secrets
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        KeyVaultName: '$(keyVault)'
+        SecretsFilter: 'servicePrincipalKey,vvpAPIToken,tenantId'
 
-        - task: Bash@3
-          inputs:
-            filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
-          env:
-            servicePrincipal: $(servicePrincipal)
-            servicePrincipalKey: $(servicePrincipalKey)
-            tenantId: $(tenantId)
-            resourceGroup: $(resourceGroup)
-            kubernetesCluster: $(kubernetesCluster)
-            kubernetesNamespace: $(kubernetesNamespace)
-          displayName: Setup local access
+    - task: Bash@3
+      inputs:
+        filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
+      env:
+        servicePrincipal: $(servicePrincipal)
+        servicePrincipalKey: $(servicePrincipalKey)
+        tenantId: $(tenantId)
+        resourceGroup: $(resourceGroup)
+        kubernetesCluster: $(kubernetesCluster)
+        kubernetesNamespace: $(kubernetesNamespace)
+      displayName: Setup local access
 
-        - task: Bash@3
-          inputs:
-            # this sets the 'deploymentId' variable
-            filePath: 'vvp-pipeline-scripts/search-deployment-id.sh'
-          env:
-            vvpNamespace: $(vvpNamespace)
-            vvpAPIToken: $(vvpAPIToken)
-            artifactId: $(artifactId)
-            repoName: $(Build.Repository.Name)
-          displayName: Check deployment
+    - task: Bash@3
+      inputs:
+        # this sets the 'deploymentId' variable
+        filePath: 'vvp-pipeline-scripts/search-deployment-id.sh'
+      env:
+        vvpNamespace: $(vvpNamespace)
+        vvpAPIToken: $(vvpAPIToken)
+        artifactId: $(artifactId)
+        repoName: $(Build.Repository.Name)
+      displayName: Check deployment
 
-        - task: Bash@3
-          inputs:
-            filePath: 'vvp-pipeline-scripts/update-existing-deployment.sh'
-          env:
-            deploymentId: $(deploymentId)
-            vvpNamespace: $(vvpNamespace)
-            vvpAPIToken: $(vvpAPIToken)
-            vvpDeploymentTarget: $(vvpDeploymentTarget)
-            jarFileName: $(jarFileName)
-            blobContainer: $(blobContainer)
-            storageAccount: $(storageAccount)
-            buildVersion: $(Build.SourceVersion)
-            repoName: $(Build.Repository.Name)
-            vvpDeploymentConf: $(vvpDeploymentConf)
-          condition: and(succeeded(), ne(variables['deploymentId'], '') )
-          displayName: PATCH deployment
+    - task: Bash@3
+      inputs:
+        filePath: 'vvp-pipeline-scripts/update-existing-deployment.sh'
+      env:
+        deploymentId: $(deploymentId)
+        vvpNamespace: $(vvpNamespace)
+        vvpAPIToken: $(vvpAPIToken)
+        vvpDeploymentTarget: $(vvpDeploymentTarget)
+        jarFileName: $(jarFileName)
+        blobContainer: $(blobContainer)
+        storageAccount: $(storageAccount)
+        buildVersion: $(Build.SourceVersion)
+        repoName: $(Build.Repository.Name)
+        vvpDeploymentConf: $(vvpDeploymentConf)
+      condition: and(succeeded(), ne(variables['deploymentId'], '') )
+      displayName: PATCH deployment
 
-        - task: Bash@3
-          inputs:
-            filePath: 'vvp-pipeline-scripts/create-new-deployment.sh'
-          env:
-            vvpNamespace: $(vvpNamespace)
-            vvpAPIToken: $(vvpAPIToken)
-            vvpDeploymentTarget: $(vvpDeploymentTarget)
-            artifactId: $(artifactId)
-            jarFileName: $(jarFileName)
-            blobContainer: $(blobContainer)
-            storageAccount: $(storageAccount)
-            buildVersion: $(Build.SourceVersion)
-            repoName: $(Build.Repository.Name)
-            vvpDeploymentConf: $(vvpDeploymentConf)
-          condition: and(succeeded(), eq(variables['deploymentId'], '') )
-          displayName: POST deployment
+    - task: Bash@3
+      inputs:
+        filePath: 'vvp-pipeline-scripts/create-new-deployment.sh'
+      env:
+        vvpNamespace: $(vvpNamespace)
+        vvpAPIToken: $(vvpAPIToken)
+        vvpDeploymentTarget: $(vvpDeploymentTarget)
+        artifactId: $(artifactId)
+        jarFileName: $(jarFileName)
+        blobContainer: $(blobContainer)
+        storageAccount: $(storageAccount)
+        buildVersion: $(Build.SourceVersion)
+        repoName: $(Build.Repository.Name)
+        vvpDeploymentConf: $(vvpDeploymentConf)
+      condition: and(succeeded(), eq(variables['deploymentId'], '') )
+      displayName: POST deployment
 
 # Monitor stage
 - stage: Monitor
@@ -236,58 +236,58 @@ stages:
   condition: succeeded()
 
   jobs:
-    - job: Delay
-      displayName: Delay a few minutes
+  - job: Delay
+    displayName: Delay a few minutes
 
-      pool: server
+    pool: server
 
-      steps:
-        - task: Delay@1  # requires 'pool: server'
-          inputs:
-            delayForMinutes: 1
+    steps:
+      - task: Delay@1  # requires 'pool: server'
+        inputs:
+          delayForMinutes: 1
 
-    - job: MonitorFlinkJob
-      dependsOn: Delay
+  - job: MonitorFlinkJob
+    dependsOn: Delay
 
-      pool:
-        vmImage: $(vmImageName)
+    pool:
+      vmImage: $(vmImageName)
 
-      steps:
-        - checkout: self
-          displayName: Checkout self
+    steps:
+    - checkout: self
+      displayName: Checkout self
 
-        - checkout: vvp-pipeline-scripts
-          displayName: Checkout scripts
+    - checkout: vvp-pipeline-scripts
+      displayName: Checkout scripts
 
-        - task: KubectlInstaller@0
-          displayName: Install kubectl
-          inputs:
-            kubectlVersion: 1.15.0
+    - task: KubectlInstaller@0
+      displayName: Install kubectl
+      inputs:
+        kubectlVersion: 1.15.0
 
-        - task: AzureKeyVault@1
-          displayName: Get secrets
-          inputs:
-            azureSubscription: '$(azureSubscription)'
-            KeyVaultName: '$(keyVault)'
-            SecretsFilter: 'servicePrincipalKey,vvpAPIToken,tenantId'
+    - task: AzureKeyVault@1
+      displayName: Get secrets
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        KeyVaultName: '$(keyVault)'
+        SecretsFilter: 'servicePrincipalKey,vvpAPIToken,tenantId'
 
-        - task: Bash@3
-          inputs:
-            filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
-          env:
-            servicePrincipal: $(servicePrincipal)
-            servicePrincipalKey: $(servicePrincipalKey)
-            tenantId: $(tenantId)
-            resourceGroup: $(resourceGroup)
-            kubernetesCluster: $(kubernetesCluster)
-            kubernetesNamespace: $(kubernetesNamespace)
-          displayName: Setup local access
+    - task: Bash@3
+      inputs:
+        filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
+      env:
+        servicePrincipal: $(servicePrincipal)
+        servicePrincipalKey: $(servicePrincipalKey)
+        tenantId: $(tenantId)
+        resourceGroup: $(resourceGroup)
+        kubernetesCluster: $(kubernetesCluster)
+        kubernetesNamespace: $(kubernetesNamespace)
+      displayName: Setup local access
 
-        - task: Bash@3
-          inputs:
-            filePath: 'vvp-pipeline-scripts/check-deployment-state.sh'
-          env:
-            vvpAPIToken: $(vvpAPIToken)
-            artifactId: $(artifactId)
-            repoName: $(Build.Repository.Name)
-          displayName: Check job state
+    - task: Bash@3
+      inputs:
+        filePath: 'vvp-pipeline-scripts/check-deployment-state.sh'
+      env:
+        vvpAPIToken: $(vvpAPIToken)
+        artifactId: $(artifactId)
+        repoName: $(Build.Repository.Name)
+      displayName: Check job state
