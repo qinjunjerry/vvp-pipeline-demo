@@ -143,7 +143,7 @@ stages:
 # Submit stage
 - stage: Submit
   displayName: Submit stage
-  dependsOn: Deploy
+  dependsOn: Build
   condition: succeeded()
 
   jobs:
