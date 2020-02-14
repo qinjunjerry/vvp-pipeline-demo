@@ -73,9 +73,9 @@ variables:
 
 stages:
 
-# Build stage
-- stage: Build
-  displayName: Build stage
+# Build & Deploy stage
+- stage: BuildDeploy
+  displayName: Build & Deploy stage
   jobs:
   - job: PackageAndPublish
     displayName: Package and publish
@@ -98,35 +98,6 @@ stages:
           !original-*.jar
         TargetFolder: '$(build.artifactstagingdirectory)/artifacts'
 
-    # - task: PublishPipelineArtifact@1
-    #   displayName: Publish artifacts
-    #   inputs:
-    #     targetPath: '$(build.artifactstagingdirectory)/artifacts'
-    #     artifactName: JobJar
-
-# # Deploy stage
-# - stage: Deploy
-#   displayName: Deploy stage
-#   dependsOn: Build
-#   condition: succeeded()
-
-#   jobs:
-#     - job: DownloadAndDeploy
-#       displayName: Download and deploy
-
-#       # We use a windows image here because AzureFileCopy@3 runs only on Windows
-#       pool:
-#         vmImage: 'windows-latest'
-
-#       steps:
-#       - checkout: none
-
-#       - task: DownloadPipelineArtifact@2
-#         displayName: Download artifacts
-#         inputs:
-#           artifact: 'JobJar'
-#           downloadPath: '$(build.artifactstagingdirectory)/artifacts'
-
     - task: AzureFileCopy@3
       displayName: Deploy to blob storage
       inputs:
@@ -140,7 +111,7 @@ stages:
 # Submit stage
 - stage: Submit
   displayName: Submit stage
-  dependsOn: Build
+  dependsOn: BuildDeploy
   condition: succeeded()
 
   jobs:
@@ -239,9 +210,9 @@ stages:
     pool: server
 
     steps:
-      - task: Delay@1  # requires 'pool: server'
-        inputs:
-          delayForMinutes: 1
+    - task: Delay@1  # requires 'pool: server'
+      inputs:
+        delayForMinutes: 1
 
   - job: MonitorFlinkJob
     dependsOn: Delay
@@ -258,8 +229,8 @@ stages:
 
     - task: KubectlInstaller@0
       displayName: Install kubectl
-      inputs:
-        kubectlVersion: 1.15.0
+      # inputs:
+      #   kubectlVersion: 1.15.0
 
     - task: AzureKeyVault@1
       displayName: Get secrets
