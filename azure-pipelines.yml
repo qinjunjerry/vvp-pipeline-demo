@@ -9,16 +9,11 @@ trigger:
 - master
 
 variables:
-
-  # Azure Resource Manager service connection 
+  # Azure Resource Manager service connection
   azureSubscription: 'vvp-pipeline-service-connection'
 
   # Agent VM image name
-  # Except the depoly stage which uses a Windows image as it is required by AzureFileCopy@3 task
   vmImageName: 'ubuntu-latest'
-
-  # DEBUG
-  system.debug: true
 
   # Azure resources
   resourceGroup: 'vvp-pipeline-demo'
@@ -51,7 +46,6 @@ stages:
       vmImage: $(vmImageName)
 
     steps:
-
     - task: Maven@3
       displayName: Maven package
       inputs:
@@ -87,19 +81,18 @@ stages:
         vmImage: 'windows-latest'
 
       steps:
-
       - checkout: none
 
       - task: DownloadPipelineArtifact@2
         displayName: Download artifacts
         inputs:
           artifact: 'JobJar'
-          downloadPath: '$(build.artifactstagingdirectory)/artifacts' 
+          downloadPath: '$(build.artifactstagingdirectory)/artifacts'
 
       - task: AzureFileCopy@3
         displayName: Deploy to blob storage
         inputs:
-          sourcePath: '$(build.artifactstagingdirectory)/artifacts' 
+          sourcePath: '$(build.artifactstagingdirectory)/artifacts'
           azureSubscription: '$(azureSubscription)'
           destination: 'AzureBlob'
           storage: '$(storageAccount)'
@@ -120,7 +113,6 @@ stages:
         vmImage: $(vmImageName)
 
       steps:
-
         - checkout: self
           displayName: Checkout self
 
@@ -129,7 +121,7 @@ stages:
 
         - task: KubectlInstaller@0
           displayName: Install kubectl
-          inputs: 
+          inputs:
             kubectlVersion: 1.15.0
 
         - task: AzureKeyVault@1
@@ -204,7 +196,7 @@ stages:
       displayName: Delay a few minutes
 
       pool: server
- 
+
       steps:
         - task: Delay@1  # requires 'pool: server'
           inputs:
@@ -217,7 +209,6 @@ stages:
         vmImage: $(vmImageName)
 
       steps:
-
         - checkout: self
           displayName: Checkout self
 
@@ -226,7 +217,7 @@ stages:
 
         - task: KubectlInstaller@0
           displayName: Install kubectl
-          inputs: 
+          inputs:
             kubectlVersion: 1.15.0
 
         - task: AzureKeyVault@1
