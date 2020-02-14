@@ -40,9 +40,9 @@ variables:
     spec:
       state: RUNNING
       upgradeStrategy:
-        kind: STATELESS
+        kind: STATEFUL
       restoreStrategy:
-        kind: LATEST_SAVEPOINT
+        kind: LATEST_STATE
         allowNonRestoredState: false
       deploymentTargetId: ${vvpDeploymentTarget}
       template:
