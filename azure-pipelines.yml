@@ -30,10 +30,7 @@ variables:
   vvpNamespace: 'default'
   vvpDeploymentTarget: '6232cc84-7aa3-4524-b3a8-36cab7203c47'
 
-  # misc.
-  delayMinutes: 1
-
-  # flink conf
+  # vvp deployment conf
   vvpDeploymentConf: |
     kind: Deployment
     apiVersion: v1
@@ -242,7 +239,7 @@ stages:
       steps:
         - task: Delay@1  # requires 'pool: server'
           inputs:
-            delayForMinutes: '$(delayMinutes)'
+            delayForMinutes: 1
 
     - job: MonitorFlinkJob
       dependsOn: Delay
