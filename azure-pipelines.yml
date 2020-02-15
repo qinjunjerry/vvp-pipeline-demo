@@ -147,7 +147,7 @@ stages:
       condition: and(succeeded(), eq(variables['deploymentId'], '') )
       displayName: POST deployment
 
-    - bash: sleep 60
+    - bash: sleep 90
       displayName: Wait
 
     - task: Bash@3
