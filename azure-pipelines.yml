@@ -121,12 +121,8 @@ stages:
       env:
         vvpNamespace: $(vvpNamespace)
         vvpAPIToken: $(vvpAPIToken)
-        artifactId: $(artifactId)
         buildRepository: $(Build.Repository.Name)
       displayName: Check deployment
-
-    - bash: |
-        echo $(Build.Repository.LocalPath)
 
     - task: Bash@3
       inputs:
@@ -152,7 +148,6 @@ stages:
         vvpNamespace: $(vvpNamespace)
         vvpAPIToken: $(vvpAPIToken)
         vvpDeploymentTarget: $(vvpDeploymentTarget)
-        artifactId: $(artifactId)
         jarFileName: $(jarFileName)
         blobContainer: $(blobContainer)
         storageAccount: $(storageAccount)
@@ -222,6 +217,5 @@ stages:
         filePath: 'vvp-pipeline-scripts/check-deployment-state.sh'
       env:
         vvpAPIToken: $(vvpAPIToken)
-        artifactId: $(artifactId)
         buildRepository: $(Build.Repository.Name)
       displayName: Check job state
