@@ -77,8 +77,8 @@ stages:
 - stage: BuildDeploy
   displayName: Build & Deploy stage
   jobs:
-  - job: PackageAndPublish
-    displayName: Package and publish
+  - job: BuildAndDeploy
+    displayName: Build and deploy
 
     pool:
       vmImage: 'windows-latest'
@@ -115,8 +115,8 @@ stages:
   condition: succeeded()
 
   jobs:
-  - job: SubmitFlinkJob
-    displayName: Submit flink job
+  - job: Submit
+    displayName: Submit
 
     pool:
       vmImage: $(vmImageName)
@@ -162,6 +162,9 @@ stages:
         artifactId: $(artifactId)
         repoName: $(Build.Repository.Name)
       displayName: Check deployment
+
+    - bash: |
+      echo $(Build.Repository.LocalPath)
 
     - task: Bash@3
       inputs:
@@ -214,7 +217,8 @@ stages:
       inputs:
         delayForMinutes: 1
 
-  - job: MonitorFlinkJob
+  - job: Monitor
+    displayName: Monitor
     dependsOn: Delay
 
     pool:
