@@ -164,7 +164,7 @@ stages:
       displayName: Check deployment
 
     - bash: |
-      echo $(Build.Repository.LocalPath)
+        echo $(Build.Repository.LocalPath)
 
     - task: Bash@3
       inputs:
