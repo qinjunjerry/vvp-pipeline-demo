@@ -28,9 +28,6 @@ variables:
 
   # Ververica Platform
   vvpNamespace: 'default'
-  vvpDeploymentTarget: '6232cc84-7aa3-4524-b3a8-36cab7203c47'
-
-  # vvp deployment conf
   vvpDeploymentConfFile: 'azure-pipelines-vvp-deployment.yml'
 
 stages:
@@ -39,11 +36,11 @@ stages:
 - stage: BuildDeploy
   displayName: BuildDeploy stage
   jobs:
-  - job: BuildAndDeploy
+  - job: BuildDeploy
     displayName: Build and deploy
 
     pool:
-      vmImage: 'windows-latest'
+      vmImage: 'windows-latest' # windows is required by AzureFileCopy@3
 
     steps:
     - task: Maven@3
@@ -129,7 +126,6 @@ stages:
         deploymentId: $(deploymentId)
         vvpNamespace: $(vvpNamespace)
         vvpAPIToken: $(vvpAPIToken)
-        vvpDeploymentTarget: $(vvpDeploymentTarget)
         jarFileName: $(jarFileName)
         blobContainer: $(blobContainer)
         storageAccount: $(storageAccount)
@@ -145,7 +141,6 @@ stages:
       env:
         vvpNamespace: $(vvpNamespace)
         vvpAPIToken: $(vvpAPIToken)
-        vvpDeploymentTarget: $(vvpDeploymentTarget)
         jarFileName: $(jarFileName)
         blobContainer: $(blobContainer)
         storageAccount: $(storageAccount)
@@ -165,10 +160,10 @@ stages:
   - job: Delay
     displayName: Delay a few minutes
 
-    pool: server
+    pool: server # required by Delay@1
 
     steps:
-    - task: Delay@1  # requires 'pool: server'
+    - task: Delay@1
       inputs:
         delayForMinutes: 1
 
