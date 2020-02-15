@@ -35,10 +35,8 @@ stages:
 
 # BuildDeploy stage
 - stage: BuildDeploy
-  displayName: BuildDeploy stage
   jobs:
   - job: BuildDeploy
-    displayName: Build and deploy
 
     pool:
       vmImage: 'windows-latest' # windows is required by AzureFileCopy@3
@@ -69,14 +67,12 @@ stages:
         BlobPrefix: 'artifacts/namespaces/$(vvpNamespace)'
 
 # Submit stage
-- stage: Submit
-  displayName: Submit stage
+- stage: SubmitCheck
   dependsOn: BuildDeploy
   condition: succeeded()
 
   jobs:
-  - job: Submit
-    displayName: Submit
+  - job: SubmitCheck
 
     pool:
       vmImage: $(vmImageName)
@@ -151,59 +147,6 @@ stages:
       condition: and(succeeded(), eq(variables['deploymentId'], '') )
       displayName: POST deployment
 
-# # Monitor stage
-# - stage: Monitor
-#   displayName: Monitor stage
-#   dependsOn: Submit
-#   condition: succeeded()
-
-#   jobs:
-#   - job: Delay
-#     displayName: Delay a few minutes
-
-#     pool: server # required by Delay@1
-
-#     steps:
-#     - task: Delay@1
-#       inputs:
-#         delayForMinutes: 1
-
-#   - job: Monitor
-#     displayName: Monitor
-#     dependsOn: Delay
-
-#     pool:
-#       vmImage: $(vmImageName)
-
-#     steps:
-#     - checkout: self
-#       displayName: Checkout self
-
-#     - checkout: vvp-pipeline-scripts
-#       displayName: Checkout scripts
-
-#     - task: KubectlInstaller@0
-#       displayName: Install kubectl
-
-#     - task: AzureKeyVault@1
-#       displayName: Get secrets
-#       inputs:
-#         azureSubscription: '$(azureSubscription)'
-#         KeyVaultName: '$(keyVault)'
-#         SecretsFilter: 'servicePrincipalKey,vvpAPIToken,tenantId'
-
-#     - task: Bash@3
-#       inputs:
-#         filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
-#       env:
-#         servicePrincipal: $(servicePrincipal)
-#         servicePrincipalKey: $(servicePrincipalKey)
-#         tenantId: $(tenantId)
-#         resourceGroup: $(resourceGroup)
-#         kubernetesCluster: $(kubernetesCluster)
-#         kubernetesNamespace: $(kubernetesNamespace)
-#       displayName: Setup local access
-
     - bash: sleep 60
       displayName: Wait
 
@@ -213,4 +156,4 @@ stages:
       env:
         vvpAPIToken: $(vvpAPIToken)
         buildRepository: $(Build.Repository.Name)
-      displayName: Check job state
+      displayName: Check state
