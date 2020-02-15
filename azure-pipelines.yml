@@ -1,5 +1,6 @@
 resources:
   repositories:
+    # the utility script repository
     - repository: 'vvp-pipeline-scripts'
       type: 'github'
       name: 'qinjunjerry/vvp-pipeline-scripts'
@@ -150,58 +151,61 @@ stages:
       condition: and(succeeded(), eq(variables['deploymentId'], '') )
       displayName: POST deployment
 
-# Monitor stage
-- stage: Monitor
-  displayName: Monitor stage
-  dependsOn: Submit
-  condition: succeeded()
+# # Monitor stage
+# - stage: Monitor
+#   displayName: Monitor stage
+#   dependsOn: Submit
+#   condition: succeeded()
 
-  jobs:
-  - job: Delay
-    displayName: Delay a few minutes
+#   jobs:
+#   - job: Delay
+#     displayName: Delay a few minutes
 
-    pool: server # required by Delay@1
+#     pool: server # required by Delay@1
 
-    steps:
-    - task: Delay@1
-      inputs:
-        delayForMinutes: 1
+#     steps:
+#     - task: Delay@1
+#       inputs:
+#         delayForMinutes: 1
 
-  - job: Monitor
-    displayName: Monitor
-    dependsOn: Delay
+#   - job: Monitor
+#     displayName: Monitor
+#     dependsOn: Delay
 
-    pool:
-      vmImage: $(vmImageName)
+#     pool:
+#       vmImage: $(vmImageName)
 
-    steps:
-    - checkout: self
-      displayName: Checkout self
+#     steps:
+#     - checkout: self
+#       displayName: Checkout self
 
-    - checkout: vvp-pipeline-scripts
-      displayName: Checkout scripts
+#     - checkout: vvp-pipeline-scripts
+#       displayName: Checkout scripts
 
-    - task: KubectlInstaller@0
-      displayName: Install kubectl
+#     - task: KubectlInstaller@0
+#       displayName: Install kubectl
 
-    - task: AzureKeyVault@1
-      displayName: Get secrets
-      inputs:
-        azureSubscription: '$(azureSubscription)'
-        KeyVaultName: '$(keyVault)'
-        SecretsFilter: 'servicePrincipalKey,vvpAPIToken,tenantId'
+#     - task: AzureKeyVault@1
+#       displayName: Get secrets
+#       inputs:
+#         azureSubscription: '$(azureSubscription)'
+#         KeyVaultName: '$(keyVault)'
+#         SecretsFilter: 'servicePrincipalKey,vvpAPIToken,tenantId'
 
-    - task: Bash@3
-      inputs:
-        filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
-      env:
-        servicePrincipal: $(servicePrincipal)
-        servicePrincipalKey: $(servicePrincipalKey)
-        tenantId: $(tenantId)
-        resourceGroup: $(resourceGroup)
-        kubernetesCluster: $(kubernetesCluster)
-        kubernetesNamespace: $(kubernetesNamespace)
-      displayName: Setup local access
+#     - task: Bash@3
+#       inputs:
+#         filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
+#       env:
+#         servicePrincipal: $(servicePrincipal)
+#         servicePrincipalKey: $(servicePrincipalKey)
+#         tenantId: $(tenantId)
+#         resourceGroup: $(resourceGroup)
+#         kubernetesCluster: $(kubernetesCluster)
+#         kubernetesNamespace: $(kubernetesNamespace)
+#       displayName: Setup local access
+
+    - bash: sleep 60
+      displayName: Wait
 
     - task: Bash@3
       inputs:
