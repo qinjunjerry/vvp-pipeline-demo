@@ -35,9 +35,9 @@ variables:
 
 stages:
 
-# Build & Deploy stage
+# BuildDeploy stage
 - stage: BuildDeploy
-  displayName: Build & Deploy stage
+  displayName: BuildDeploy stage
   jobs:
   - job: BuildAndDeploy
     displayName: Build and deploy
@@ -92,8 +92,6 @@ stages:
 
     - task: KubectlInstaller@0
       displayName: Install kubectl
-      inputs:
-        kubectlVersion: 1.15.0
 
     - task: AzureKeyVault@1
       displayName: Get secrets
@@ -190,8 +188,6 @@ stages:
 
     - task: KubectlInstaller@0
       displayName: Install kubectl
-      # inputs:
-      #   kubectlVersion: 1.15.0
 
     - task: AzureKeyVault@1
       displayName: Get secrets
