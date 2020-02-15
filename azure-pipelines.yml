@@ -31,45 +31,7 @@ variables:
   vvpDeploymentTarget: '6232cc84-7aa3-4524-b3a8-36cab7203c47'
 
   # vvp deployment conf
-  vvpDeploymentConf: |
-    kind: Deployment
-    apiVersion: v1
-    metadata:
-      name: ${artifactId}-deployment
-      namespace: ${vvpNamespace}
-    spec:
-      state: RUNNING
-      upgradeStrategy:
-        kind: STATEFUL
-      restoreStrategy:
-        kind: LATEST_STATE
-        allowNonRestoredState: false
-      deploymentTargetId: ${vvpDeploymentTarget}
-      template:
-        metadata:
-          annotations: {}
-        spec:
-          artifact:
-            kind: JAR
-            jarUri: >-
-              wasbs://${blobContainer}@${storageAccount}.blob.core.windows.net/artifacts/namespaces/${vvpNamespace}/${jarFileName}?commit=${commitHash}
-            flinkVersion: 1.9
-            flinkImageRegistry: registry.platform.data-artisans.net/v2.0
-            flinkImageRepository: flink
-            flinkImageTag: 1.9.2-stream1-scala_2.12
-          parallelism: 1
-          resources:
-            jobmanager:
-              cpu: 0.5
-              memory: 1G
-            taskmanager:
-              cpu: 1
-              memory: 1G
-          flinkConfiguration: {}
-          logging:
-            log4jLoggers: {}
-    status:
-      state: CANCELLED
+  vvpDeploymentConfFile: 'azure-pipelines-vvp-deployment.yml'
 
 stages:
 
@@ -160,7 +122,7 @@ stages:
         vvpNamespace: $(vvpNamespace)
         vvpAPIToken: $(vvpAPIToken)
         artifactId: $(artifactId)
-        repoName: $(Build.Repository.Name)
+        buildRepository: $(Build.Repository.Name)
       displayName: Check deployment
 
     - bash: |
@@ -178,8 +140,8 @@ stages:
         blobContainer: $(blobContainer)
         storageAccount: $(storageAccount)
         buildVersion: $(Build.SourceVersion)
-        repoName: $(Build.Repository.Name)
-        vvpDeploymentConf: $(vvpDeploymentConf)
+        buildRepository: $(Build.Repository.Name)
+        vvpDeploymentConfFile: $(vvpDeploymentConfFile)
       condition: and(succeeded(), ne(variables['deploymentId'], '') )
       displayName: PATCH deployment
 
@@ -195,8 +157,8 @@ stages:
         blobContainer: $(blobContainer)
         storageAccount: $(storageAccount)
         buildVersion: $(Build.SourceVersion)
-        repoName: $(Build.Repository.Name)
-        vvpDeploymentConf: $(vvpDeploymentConf)
+        buildRepository: $(Build.Repository.Name)
+        vvpDeploymentConfFile: $(vvpDeploymentConfFile)
       condition: and(succeeded(), eq(variables['deploymentId'], '') )
       displayName: POST deployment
 
@@ -261,5 +223,5 @@ stages:
       env:
         vvpAPIToken: $(vvpAPIToken)
         artifactId: $(artifactId)
-        repoName: $(Build.Repository.Name)
+        buildRepository: $(Build.Repository.Name)
       displayName: Check job state
