@@ -34,5 +34,3 @@ spec:
       flinkConfiguration: {}
       logging:
         log4jLoggers: {}
-status:
-  state: CANCELLED

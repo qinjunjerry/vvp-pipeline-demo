@@ -94,26 +94,26 @@ stages:
       displayName: Setup local access
       inputs:
         filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
-      env: { servicePrincipalKey: $(servicePrincipalKey), tenantId: $(tenantId) }
+      env: { SERVICEPRINCIPAL_KEY: $(servicePrincipalKey), TENANT_ID: $(tenantId) }
 
     - task: Bash@3
       displayName: Search deployment
       inputs:
         filePath: 'vvp-pipeline-scripts/search-deployment-id.sh' # this sets the 'deploymentId' variable
-      env: { vvpAPIToken: $(vvpAPIToken) }
+      env: { VVP_APITOKEN: $(vvpAPIToken) }
 
     - task: Bash@3
       displayName: PATCH deployment
       inputs:
         filePath: 'vvp-pipeline-scripts/update-existing-deployment.sh'
-      env: { vvpAPIToken: $(vvpAPIToken) }
+      env: { VVP_APITOKEN: $(vvpAPIToken) }
       condition: and(succeeded(), ne(variables['deploymentId'], '') )
 
     - task: Bash@3
       displayName: POST deployment
       inputs:
         filePath: 'vvp-pipeline-scripts/create-new-deployment.sh'
-      env: { vvpAPIToken: $(vvpAPIToken) }
+      env: { VVP_APITOKEN: $(vvpAPIToken) }
       condition: and(succeeded(), eq(variables['deploymentId'], '') )
 
     - bash: sleep 90
@@ -123,4 +123,4 @@ stages:
       displayName: Check state
       inputs:
         filePath: 'vvp-pipeline-scripts/check-deployment-state.sh'
-      env: { vvpAPIToken: $(vvpAPIToken) }
+      env: { VVP_APITOKEN: $(vvpAPIToken) }
