@@ -108,7 +108,7 @@ stages:
         filePath: 'vvp-pipeline-scripts/search-deployment-id.sh'
       env:
         vvpAPIToken: $(vvpAPIToken)
-      displayName: Check deployment
+      displayName: Search deployment
 
     - task: Bash@3
       inputs:
