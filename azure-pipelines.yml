@@ -1,7 +1,6 @@
 resources:
   repositories:
-    # the utility script repository
-    - repository: 'vvp-pipeline-scripts'
+    - repository: 'vvp-pipeline-scripts' # the utility script repository
       type: 'github'
       name: 'qinjunjerry/vvp-pipeline-scripts'
       endpoint: 'vvp-pipeline-scripts-service-connection'
@@ -30,9 +29,6 @@ variables:
   # Ververica Platform
   vvpNamespace: 'default'
   vvpDeploymentConfFile: 'azure-pipelines-vvp-deployment.yml'
-
-  # DEBUG
-  system.debug: true
 
 stages:
 
@@ -100,32 +96,26 @@ stages:
     - task: Bash@3
       inputs:
         filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
-      env:
-        servicePrincipalKey: $(servicePrincipalKey)
-        tenantId: $(tenantId)
+      env: { servicePrincipalKey: $(servicePrincipalKey), tenantId: $(tenantId) }
       displayName: Setup local access
 
     - task: Bash@3
       inputs:
-        # this sets the 'deploymentId' variable
-        filePath: 'vvp-pipeline-scripts/search-deployment-id.sh'
-      env:
-        vvpAPIToken: $(vvpAPIToken)
+        filePath: 'vvp-pipeline-scripts/search-deployment-id.sh' # this sets the 'deploymentId' variable
+      env: { vvpAPIToken: $(vvpAPIToken) }
       displayName: Search deployment
 
     - task: Bash@3
       inputs:
         filePath: 'vvp-pipeline-scripts/update-existing-deployment.sh'
-      env:
-        vvpAPIToken: $(vvpAPIToken)
+      env: { vvpAPIToken: $(vvpAPIToken) }
       condition: and(succeeded(), ne(variables['deploymentId'], '') )
       displayName: PATCH deployment
 
     - task: Bash@3
       inputs:
         filePath: 'vvp-pipeline-scripts/create-new-deployment.sh'
-      env:
-        vvpAPIToken: $(vvpAPIToken)
+      env: { vvpAPIToken: $(vvpAPIToken) }
       condition: and(succeeded(), eq(variables['deploymentId'], '') )
       displayName: POST deployment
 
@@ -135,6 +125,5 @@ stages:
     - task: Bash@3
       inputs:
         filePath: 'vvp-pipeline-scripts/check-deployment-state.sh'
-      env:
-        vvpAPIToken: $(vvpAPIToken)
+      env: { vvpAPIToken: $(vvpAPIToken) }
       displayName: Check state
