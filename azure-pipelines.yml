@@ -12,9 +12,6 @@ variables:
   # Azure Resource Manager service connection
   azureSubscription: 'vvp-pipeline-service-connection'
 
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-
   # Azure resources
   resourceGroup: 'vvp-pipeline-demo'
   storageAccount: 'vvppipelinestorage'
@@ -74,7 +71,7 @@ stages:
   - job: SubmitCheck
 
     pool:
-      vmImage: $(vmImageName)
+      vmImage: 'ubuntu-latest'
 
     steps:
     - checkout: self
