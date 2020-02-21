@@ -18,10 +18,10 @@ variables:
 
   # Azure resources
   resourceGroup: 'vvp-pipeline-demo'
-  servicePrincipal: 'http://vvp-pipeline-service-principal'
-  keyVault: 'vvp-pipeline-keyvault'
   storageAccount: 'vvppipelinestorage'
   blobContainer: 'vvp-pipeline-container'
+  servicePrincipal: 'http://vvp-pipeline-service-principal'
+  keyVault: 'vvp-pipeline-keyvault'
 
   # Kubernetes
   kubernetesCluster: 'vvp-pipeline-cluster'
@@ -98,12 +98,8 @@ stages:
       inputs:
         filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
       env:
-        servicePrincipal: $(servicePrincipal)
         servicePrincipalKey: $(servicePrincipalKey)
         tenantId: $(tenantId)
-        resourceGroup: $(resourceGroup)
-        kubernetesCluster: $(kubernetesCluster)
-        kubernetesNamespace: $(kubernetesNamespace)
       displayName: Setup local access
 
     - task: Bash@3
@@ -111,24 +107,14 @@ stages:
         # this sets the 'deploymentId' variable
         filePath: 'vvp-pipeline-scripts/search-deployment-id.sh'
       env:
-        vvpNamespace: $(vvpNamespace)
         vvpAPIToken: $(vvpAPIToken)
-        buildRepository: $(Build.Repository.Name)
       displayName: Check deployment
 
     - task: Bash@3
       inputs:
         filePath: 'vvp-pipeline-scripts/update-existing-deployment.sh'
       env:
-        deploymentId: $(deploymentId)
-        vvpNamespace: $(vvpNamespace)
         vvpAPIToken: $(vvpAPIToken)
-        jarFileName: $(jarFileName)
-        blobContainer: $(blobContainer)
-        storageAccount: $(storageAccount)
-        buildVersion: $(Build.SourceVersion)
-        buildRepository: $(Build.Repository.Name)
-        vvpDeploymentConfFile: $(vvpDeploymentConfFile)
       condition: and(succeeded(), ne(variables['deploymentId'], '') )
       displayName: PATCH deployment
 
@@ -136,14 +122,7 @@ stages:
       inputs:
         filePath: 'vvp-pipeline-scripts/create-new-deployment.sh'
       env:
-        vvpNamespace: $(vvpNamespace)
         vvpAPIToken: $(vvpAPIToken)
-        jarFileName: $(jarFileName)
-        blobContainer: $(blobContainer)
-        storageAccount: $(storageAccount)
-        buildVersion: $(Build.SourceVersion)
-        buildRepository: $(Build.Repository.Name)
-        vvpDeploymentConfFile: $(vvpDeploymentConfFile)
       condition: and(succeeded(), eq(variables['deploymentId'], '') )
       displayName: POST deployment
 
@@ -155,5 +134,4 @@ stages:
         filePath: 'vvp-pipeline-scripts/check-deployment-state.sh'
       env:
         vvpAPIToken: $(vvpAPIToken)
-        buildRepository: $(Build.Repository.Name)
       displayName: Check state
