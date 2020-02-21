@@ -31,6 +31,9 @@ variables:
   vvpNamespace: 'default'
   vvpDeploymentConfFile: 'azure-pipelines-vvp-deployment.yml'
 
+  # DEBUG
+  system.debug: true
+
 stages:
 
 # BuildDeploy stage
