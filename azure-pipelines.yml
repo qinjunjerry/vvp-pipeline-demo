@@ -1,6 +1,6 @@
 resources:
   repositories:
-    - repository: 'vvp-pipeline-scripts' # the utility script repository
+    - repository: 'vvp-pipeline-scripts' # the utility scripts repository
       type: 'github'
       name: 'qinjunjerry/vvp-pipeline-scripts'
       endpoint: 'vvp-pipeline-scripts-service-connection'
@@ -99,7 +99,7 @@ stages:
     - task: Bash@3
       displayName: Search deployment
       inputs:
-        filePath: 'vvp-pipeline-scripts/search-deployment-id.sh' # this sets the 'deploymentId' variable
+        filePath: 'vvp-pipeline-scripts/search-deployment-id.sh' # this sets 'deploymentId'
       env: { VVP_APITOKEN: $(vvpAPIToken) }
 
     - task: Bash@3
