@@ -1,10 +1,3 @@
-resources:
-  repositories:
-    - repository: 'vvp-pipeline-scripts' # the utility scripts repository
-      type: 'github'
-      name: 'qinjunjerry/vvp-pipeline-scripts'
-      endpoint: 'vvp-pipeline-scripts-service-connection'
-
 trigger:
 - master
 
@@ -27,6 +20,12 @@ variables:
   vvpNamespace: 'default'
   vvpDeploymentConfFile: 'azure-pipelines-vvp-deployment.yml'
 
+  deploymentId: 'd320ec04-16f5-4915-b236-6efa43b7e003'
+  artifactId: 'vvp-pipeline-demo'
+  jarFileName: '$(artifactId)-0.1.jar'
+  jarLocation: 'wasbs://$(blobContainer)@$(storageAccount).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(jarFileName)'
+
+
 stages:
 
 # BuildDeploy stage
@@ -43,19 +42,10 @@ stages:
       inputs:
         mavenPomFile: 'pom.xml'
 
-    - task: CopyFiles@2
-      displayName: Stage artifacts
-      inputs:
-        SourceFolder: 'target'
-        Contents: |
-          *.jar
-          !original-*.jar
-        TargetFolder: '$(build.artifactstagingdirectory)/artifacts'
-
     - task: AzureFileCopy@3
       displayName: Deploy to blob storage
       inputs:
-        sourcePath: '$(build.artifactstagingdirectory)/artifacts'
+        sourcePath: 'target/$(jarFileName)'
         azureSubscription: '$(azureSubscription)'
         destination: 'AzureBlob'
         storage: '$(storageAccount)'
@@ -74,12 +64,6 @@ stages:
       vmImage: 'ubuntu-latest'
 
     steps:
-    - checkout: self
-      displayName: Checkout self
-
-    - checkout: vvp-pipeline-scripts
-      displayName: Checkout scripts
-
     - task: KubectlInstaller@0
       displayName: Install kubectl
 
@@ -90,37 +74,33 @@ stages:
         KeyVaultName: '$(keyVault)'
         SecretsFilter: 'servicePrincipalKey,vvpAPIToken,tenantId'
 
-    - task: Bash@3
+    - bash: |
+        az login --service-principal -u $(servicePrincipal) -p $(servicePrincipalKey) --tenant $(tenantId)
+        az aks get-credentials --resource-group $(resourceGroup) --name $(kubernetesCluster)
+        kubectl port-forward service/vvp-ververica-platform 8080:80 --namespace $(kubernetesNamespace) &
       displayName: Setup local access
-      inputs:
-        filePath: 'vvp-pipeline-scripts/setup-local-vvp-access.sh'
-      env: { SERVICEPRINCIPAL_KEY: $(servicePrincipalKey), TENANT_ID: $(tenantId) }
 
-    - task: Bash@3
-      displayName: Search deployment
-      inputs:
-        filePath: 'vvp-pipeline-scripts/search-deployment-id.sh' # this sets 'deploymentId'
-      env: { VVP_APITOKEN: $(vvpAPIToken) }
-
-    - task: Bash@3
+    - bash: |
+        curl -X PATCH "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments/$(deploymentId)" \
+            -H "Authorization: Bearer $(vvpAPIToken)" \
+            -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d "
+        `cat $(vvpDeploymentConfFile) | sed -e s/JARURI/$(jarLocation)?commit=$(Build.SourceVersion)`
+        "
       displayName: PATCH deployment
-      inputs:
-        filePath: 'vvp-pipeline-scripts/update-existing-deployment.sh'
-      env: { VVP_APITOKEN: $(vvpAPIToken) }
-      condition: and(succeeded(), ne(variables['deploymentId'], '') )
 
-    - task: Bash@3
-      displayName: POST deployment
-      inputs:
-        filePath: 'vvp-pipeline-scripts/create-new-deployment.sh'
-      env: { VVP_APITOKEN: $(vvpAPIToken) }
-      condition: and(succeeded(), eq(variables['deploymentId'], '') )
 
     - bash: sleep 90
       displayName: Wait
 
-    - task: Bash@3
+    - bash: |
+        state=`curl -X GET "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
+        -H "Authorization: Bearer $(vvpAPIToken)" \
+        -H "accept: application/json" -s | \
+        jq -r '.items[] | select (.metadata.id == "$(deploymentId)" ) | .status.state'`
+
+        if [ "$state" != "RUNNING" ]; then
+            echo Job is still in state: \"$state\"
+            exit 1
+        fi
       displayName: Check state
-      inputs:
-        filePath: 'vvp-pipeline-scripts/check-deployment-state.sh'
-      env: { VVP_APITOKEN: $(vvpAPIToken) }
+
