@@ -19,7 +19,7 @@ variables:
   # Ververica Platform
   vvpNamespace: 'default'
   vvpDeploymentConfFile: 'azure-pipelines-vvp-deployment.yml'
-
+  deploymentTargetId: '6232cc84-7aa3-4524-b3a8-36cab7203c47'
   deploymentId: 'd320ec04-16f5-4915-b236-6efa43b7e003'
   artifactId: 'vvp-pipeline-demo'
   jarFileName: '$(artifactId)-0.1.jar'
@@ -39,8 +39,6 @@ stages:
     steps:
     - task: Maven@3
       displayName: Maven package
-      inputs:
-        mavenPomFile: 'pom.xml'
 
     - task: AzureFileCopy@3
       displayName: Deploy to blob storage
@@ -84,7 +82,9 @@ stages:
         curl -X PATCH "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments/$(deploymentId)" \
             -H "Authorization: Bearer $(vvpAPIToken)" \
             -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d "
-        `cat $(vvpDeploymentConfFile) | sed -e \"s|JARURI|$(jarLocation)?commit=$(Build.SourceVersion)|g\" `
+        `cat $(vvpDeploymentConfFile) | \
+         sed -e \"s|DEPLOYMENTTARGETID|$(deploymentTargetId)|g\" \
+             -e \"s|JARURI|$(jarLocation)?commit=$(Build.SourceVersion)|g\" `
         "
       displayName: PATCH deployment
 
@@ -94,13 +94,11 @@ stages:
 
     - bash: |
         state=`curl -X GET "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments" \
-        -H "Authorization: Bearer $(vvpAPIToken)" \
-        -H "accept: application/json" -s | \
-        jq -r '.items[] | select (.metadata.id == "$(deploymentId)" ) | .status.state'`
-
+            -H "Authorization: Bearer $(vvpAPIToken)" \
+            -H "accept: application/json" -s | \
+            jq -r '.items[] | select (.metadata.id == "$(deploymentId)" ) | .status.state'`
         if [ "$state" != "RUNNING" ]; then
-            echo Job is still in state: \"$state\"
+            echo Job is in state: \"$state\"
             exit 1
         fi
       displayName: Check state
-

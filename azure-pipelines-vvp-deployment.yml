@@ -7,7 +7,7 @@ spec:
   restoreStrategy:
     kind: LATEST_STATE
     allowNonRestoredState: false
-  deploymentTargetId: 6232cc84-7aa3-4524-b3a8-36cab7203c47
+  deploymentTargetId: DEPLOYMENTTARGETID
   template:
     spec:
       artifact:
