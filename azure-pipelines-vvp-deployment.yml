@@ -1,7 +1,7 @@
 kind: Deployment
 apiVersion: v1
 spec:
-  state: "RUNNING"
+  state: RUNNING
   upgradeStrategy:
     kind: STATEFUL
   restoreStrategy:
