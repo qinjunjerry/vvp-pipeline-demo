@@ -78,13 +78,12 @@ stages:
       displayName: Setup local access
 
     - bash: |
+        cat "$(vvpDeploymentConfFile)" | \
+            sed -e "s|DEPLOYMENTTARGETID|$(deploymentTargetId)|g" \
+                -e "s|JARURI|$(jarLocation)?commit=$(Build.SourceVersion)|g" |
         curl -X PATCH "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments/$(deploymentId)" \
             -H "Authorization: Bearer $(vvpAPIToken)" \
-            -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d "
-        `cat $(vvpDeploymentConfFile) | \
-         sed -e \"s|DEPLOYMENTTARGETID|$(deploymentTargetId)|g\" \
-             -e \"s|JARURI|$(jarLocation)?commit=$(Build.SourceVersion)|g\" `
-        "
+            -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d @-
       displayName: PATCH deployment
 
     - bash: sleep 90
@@ -95,5 +94,6 @@ stages:
             -H "Authorization: Bearer $(vvpAPIToken)" \
             -H "accept: application/json" -s | \
             jq -r '.items[] | select (.metadata.id == "$(deploymentId)" ) | .status.state'`
-        [ "$state" == "RUNNING" ] || exit 1
+        echo "Deployment State is: \"$state\""
+        if [ "$state" != "RUNNING" ] || exit 1
       displayName: Check state
