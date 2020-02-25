@@ -18,8 +18,7 @@ variables:
 
   # Ververica Platform
   vvpNamespace: 'default'
-  artifactId: 'vvp-pipeline-demo'
-  jarFileName: '$(artifactId)-0.1.jar'
+  jarFileName: 'vvp-pipeline-demo-0.1.jar'
   jarLocation: 'wasbs://$(blobContainer)@$(storageAccount).blob.core.windows.net/artifacts/namespaces/$(vvpNamespace)/$(jarFileName)'
   deploymentId: 'd320ec04-16f5-4915-b236-6efa43b7e003'
   deploymentTargetId: '6232cc84-7aa3-4524-b3a8-36cab7203c47'
@@ -83,7 +82,7 @@ stages:
                 -e "s|JARURI|$(jarLocation)?commit=$(Build.SourceVersion)|g" |
         curl -X PATCH "http://localhost:8080/api/v1/namespaces/$(vvpNamespace)/deployments/$(deploymentId)" \
             -H "Authorization: Bearer $(vvpAPIToken)" \
-            -H "accept: application/yaml" -H "Content-Type: application/yaml" -s -d @-
+            -H "accept: application/yaml" -H "Content-Type: application/yaml" -s --data-binary @-
       displayName: PATCH deployment
 
     - bash: sleep 90
@@ -95,5 +94,5 @@ stages:
             -H "accept: application/json" -s | \
             jq -r '.items[] | select (.metadata.id == "$(deploymentId)" ) | .status.state'`
         echo "Deployment State is: \"$state\""
-        if [ "$state" != "RUNNING" ] || exit 1
+        [ "$state" == "RUNNING" ] || exit 1
       displayName: Check state
